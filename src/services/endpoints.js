@@ -17,5 +17,6 @@ export const ENDPOINTS = {
   NOTIFICATIONS: "/notifications/",
   ACTIVITY_LOG: "/activity_log/",
   ATTENDANCE: "/attendance/",
+  DASHBOARD_COUNTS: "/count/dashboard-counts",
 };
 

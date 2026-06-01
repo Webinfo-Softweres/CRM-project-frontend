@@ -36,14 +36,8 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 import { usePermissions } from "../../hooks/usePermissions";
-import { fetchProjects } from "../../redux/projectSlice";
-import { fetchTasks } from "../../redux/taskSlice";
-import { fetchCustomers } from "../../redux/customerSlice";
-import { fetchEnquiries } from "../../redux/enquirySlice";
-import { fetchQuotations } from "../../redux/quotationSlice";
-import { fetchUsers } from "../../redux/userSlice";
-import { fetchFeedback } from "../../redux/feedbackSlice";
-import { fetchActivityLogs } from "../../redux/activitySlice";
+
+import { fetchDashboardCountsApi } from "../../services/apiCalls";
 
 // ── Shared tooltip style ──────────────────────────────────────────────────────
 const tooltipStyle = {
@@ -108,8 +102,9 @@ function Dashboard() {
   const navigate = useNavigate();
   const { can } = usePermissions();
   const [leadsView, setLeadsView] = useState("day");
+  const [dashboardData, setDashboardData] = useState(null);
 
-  // Selectors
+  // Selectors (kept for parts that may still rely on store state, if any, but they will be empty if not fetched)
   const projects = useSelector((state) => state.projects.items) || [];
   const tasks = useSelector((state) => state.tasks.items) || [];
   const customers = useSelector((state) => state.customers.items) || [];
@@ -120,88 +115,82 @@ function Dashboard() {
   const activity = useSelector((state) => state.activity.items) || [];
 
   useEffect(() => {
-    dispatch(fetchProjects());
-    dispatch(fetchTasks());
-    dispatch(fetchCustomers());
-    dispatch(fetchEnquiries());
-    dispatch(fetchQuotations());
-    dispatch(fetchUsers());
-    dispatch(fetchFeedback());
-    dispatch(fetchActivityLogs());
+    const loadDashboardCounts = async () => {
+      try {
+        const data = await fetchDashboardCountsApi();
+        if (data && data.status === "success") {
+          setDashboardData(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch dashboard counts:", error);
+      }
+    };
+    loadDashboardCounts();
   }, [dispatch]);
 
   // ── Derived stats ───────────────────────────────────────────────────────────
-  const totalProjects   = projects.length;
-  const ongoingProjects = projects.filter((p) => p.status === "Ongoing").length;
-  const completedProjects = projects.filter((p) => p.status === "Completed").length;
-  const holdProjects    = projects.filter((p) => p.status === "Hold").length;
+  const totalProjects   = dashboardData ? dashboardData.counts.total_projects : 0;
+  const ongoingProjects = dashboardData ? dashboardData.project_status_counts.ongoing : 0;
+  const completedProjects = dashboardData ? dashboardData.project_status_counts.completed : 0;
+  const holdProjects    = dashboardData ? dashboardData.project_status_counts.hold : 0;
 
-  const totalTasks      = tasks.length;
-  const completedTasks  = tasks.filter((t) => t.status === "Completed").length;
-  const pendingTasks    = tasks.filter((t) => t.status === "Pending").length;
-  const inProgressTasks = tasks.filter((t) => t.status === "In Progress").length;
+  const totalTasks      = dashboardData ? dashboardData.counts.total_tasks : 0;
+  const completedTasks  = dashboardData ? dashboardData.task_status_counts.completed : 0;
+  const pendingTasks    = dashboardData ? dashboardData.task_status_counts.pending : 0;
+  const inProgressTasks = dashboardData ? dashboardData.task_status_counts.in_progress : 0;
 
-  const totalCustomers  = customers.length;
-  const activeCustomers = customers.filter((c) => c.status === "Active").length;
+  const totalCustomers  = dashboardData ? dashboardData.counts.total_customers : 0;
+  const activeCustomers = dashboardData ? dashboardData.counts.total_customers : 0; // Using total as API doesn't split
 
-  const totalEnquiries  = enquiries.length;
-  const newEnquiries    = enquiries.filter((e) => e.status === "New").length;
+  const totalEnquiries  = dashboardData ? (dashboardData.enquiry_status_counts.new + dashboardData.enquiry_status_counts.follow_up + dashboardData.enquiry_status_counts.closed) : 0;
+  const newEnquiries    = dashboardData ? dashboardData.enquiry_status_counts.new : 0;
 
-  const approvedQuotations = quotations.filter(
-    (q) => q.status === "Approved" || q.status === "Confirmed"
-  ).length;
+  // Since we aren't fetching quotations, this will be 0.
+  const approvedQuotations = 0;
+  const totalRevenue = 0;
 
-  const totalRevenue = quotations
-    .filter((q) => q.status === "Approved" || q.status === "Confirmed")
-    .reduce((sum, q) => sum + Number(q.amount || 0), 0);
-
-  const totalStaff   = users.length;
-  const presentStaff = users.filter((u) => u.status === "Active").length;
-  const absentStaff  = users.filter((u) => u.status === "Inactive").length;
+  const totalStaff   = dashboardData ? dashboardData.counts.total_staff : 0;
+  const presentStaff = dashboardData ? dashboardData.counts.present_staff : 0;
+  const absentStaff  = dashboardData ? dashboardData.counts.absent_staff : 0;
 
   // ── Chart data ──────────────────────────────────────────────────────────────
 
   // Task status — pie
-  const taskPieData = [
-    { name: "Completed",   value: completedTasks,  color: "#22c55e" },
-    { name: "In Progress", value: inProgressTasks, color: "#3b82f6" },
-    { name: "Pending",     value: pendingTasks,    color: "#f59e0b" },
-  ].filter((d) => d.value > 0);
+  const taskPieData = dashboardData ? [
+    { name: "Completed",   value: dashboardData.task_status_counts.completed,  color: "#22c55e" },
+    { name: "In Progress", value: dashboardData.task_status_counts.in_progress, color: "#3b82f6" },
+    { name: "Pending",     value: dashboardData.task_status_counts.pending,    color: "#f59e0b" },
+    { name: "Rejected",    value: dashboardData.task_status_counts.rejected,   color: "#ef4444" },
+  ].filter((d) => d.value > 0) : [];
 
   // Project status — pie
-  const projectPieData = [
-    { name: "Ongoing",   value: ongoingProjects,   color: "#6366f1" },
-    { name: "Completed", value: completedProjects, color: "#22c55e" },
-    { name: "Hold",      value: holdProjects,      color: "#f59e0b" },
-  ].filter((d) => d.value > 0);
+  const projectPieData = dashboardData ? [
+    { name: "Ongoing",   value: dashboardData.project_status_counts.ongoing,   color: "#6366f1" },
+    { name: "Completed", value: dashboardData.project_status_counts.completed, color: "#22c55e" },
+    { name: "Hold",      value: dashboardData.project_status_counts.hold,      color: "#f59e0b" },
+  ].filter((d) => d.value > 0) : [];
 
   // Enquiry status — bar
-  const enquiryStatusData = ["New", "Follow Up", "Closed"].map((s) => ({
-    status: s,
-    count: enquiries.filter((e) => e.status === s).length,
-  }));
+  const enquiryStatusData = dashboardData ? [
+    { status: "New", count: dashboardData.enquiry_status_counts.new },
+    { status: "Follow Up", count: dashboardData.enquiry_status_counts.follow_up },
+    { status: "Closed", count: dashboardData.enquiry_status_counts.closed },
+  ] : [];
 
   // Activity status — bar
-  const activityStatusData = ["Create", "Update", "Delete", "Read"].map((s) => {
-    let count = 0;
-    activity.forEach((a) => {
-      const method = String(a.method || a.action?.method || "").toUpperCase();
-      const status = String(a.status || "").toUpperCase();
-      const actName = String(a.actionName || "").toLowerCase();
-      if (s === "Create" && (method === "POST" || status === "NEW" || actName.includes("create") || actName.includes("add"))) count++;
-      else if (s === "Update" && (method === "PUT" || method === "PATCH" || status === "PENDING" || actName.includes("update") || actName.includes("edit") || actName.includes("mark"))) count++;
-      else if (s === "Delete" && (method === "DELETE" || status === "REJECTED" || actName.includes("delete") || actName.includes("remove"))) count++;
-      else if (s === "Read" && (method === "GET" || status === "APPROVED" || status === "COMPLETED" || actName.includes("get") || actName.includes("view") || actName.includes("read") || actName.includes("fetch"))) count++;
-    });
-    return { status: s, count };
-  }).filter((d) => d.count > 0);
+  const activityStatusData = dashboardData ? [
+    { status: "Create", count: dashboardData.activity_log_counts.create },
+    { status: "Read", count: dashboardData.activity_log_counts.read },
+    { status: "Update", count: dashboardData.activity_log_counts.update },
+    { status: "Delete", count: dashboardData.activity_log_counts.delete },
+  ].filter((d) => d.count > 0) : [];
 
   // Feedback rating — Bad (1-2), Good (3-4), Excellent (5)
-  const feedbackRatingData = [
-    { label: "Bad",       count: feedback.filter((f) => f.rating <= 2).length, color: "#ef4444" },
-    { label: "Good",      count: feedback.filter((f) => f.rating >= 3 && f.rating <= 4).length, color: "#f59e0b" },
-    { label: "Excellent", count: feedback.filter((f) => f.rating === 5).length, color: "#22c55e" },
-  ];
+  const feedbackRatingData = dashboardData ? [
+    { label: "Bad",       count: dashboardData.feedback_rating_counts.bad, color: "#ef4444" },
+    { label: "Good",      count: dashboardData.feedback_rating_counts.good, color: "#f59e0b" },
+    { label: "Excellent", count: dashboardData.feedback_rating_counts.excellent, color: "#22c55e" },
+  ] : [];
 
   // Staff attendance — radial
   const staffAttendanceData = [
@@ -210,16 +199,11 @@ function Dashboard() {
   ];
 
   // Staff performance
-  const staffPerformanceData = users.slice(0, 6).map((u) => {
-    const userTasks = tasks.filter((t) => String(t.assigned_to) === String(u.id));
-    const completed = userTasks.filter((t) => t.status === "Completed").length;
-    const pending = userTasks.filter((t) => t.status === "Pending" || t.status === "In Progress").length;
-    return {
-      name: u.name || u.username,
-      completed,
-      pending
-    };
-  });
+  const staffPerformanceData = dashboardData ? dashboardData.staff_performance.map(u => ({
+    name: u.staff_name,
+    completed: u.completed_tasks,
+    pending: u.pending_tasks
+  })) : [];
 
   // Leads
   const getLeadsData = () => {

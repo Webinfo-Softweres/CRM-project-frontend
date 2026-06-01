@@ -404,3 +404,8 @@ export const fetchMonthAttendanceApi = async (year, month) => {
   const res = await API.get(`${ENDPOINTS.ATTENDANCE}month?year=${year}&month=${month}`);
   return res.data;
 };
+
+export const fetchDashboardCountsApi = async () => {
+  const res = await API.get(ENDPOINTS.DASHBOARD_COUNTS);
+  return res.data;
+};
