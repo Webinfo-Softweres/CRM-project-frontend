@@ -303,19 +303,21 @@ function Dashboard() {
         <div className="flex flex-col lg:flex-row items-stretch gap-4 md:gap-5">
           <div className="w-full lg:w-1/2">
             <ChartCard title="Task Status" subtitle="Distribution by status" icon={ClipboardList} iconColor="text-orange-500" delay={0.1} onClick={() => navigate("/tasks")}>
-              <div className="flex items-center gap-6">
-                <ResponsiveContainer width="55%" height={220}>
-                  <PieChart>
-                    <Pie data={taskPieData} cx="50%" cy="50%" outerRadius={90} dataKey="value" labelLine={false} label={PieLabel}
-                      onClick={() => navigate("/tasks")} style={{ cursor: "pointer" }}>
-                      {taskPieData.map((entry) => (
-                        <Cell key={entry.name} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip {...tooltipStyle} />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="space-y-3 flex-1">
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                <div className="w-full sm:w-[55%] h-[220px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={taskPieData} cx="50%" cy="50%" outerRadius="80%" dataKey="value" labelLine={false} label={PieLabel}
+                        onClick={() => navigate("/tasks")} style={{ cursor: "pointer" }}>
+                        {taskPieData.map((entry) => (
+                          <Cell key={entry.name} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip {...tooltipStyle} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="space-y-3 w-full sm:flex-1">
                   {taskPieData.map((d) => (
                     <div key={d.name} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -336,19 +338,21 @@ function Dashboard() {
 
           <div className="w-full lg:w-1/2">
             <ChartCard title="Project Status" subtitle="Distribution by status" icon={FolderKanban} iconColor="text-blue-500" delay={0.15} onClick={() => navigate("/projects")}>
-              <div className="flex items-center gap-6">
-                <ResponsiveContainer width="55%" height={220}>
-                  <PieChart>
-                    <Pie data={projectPieData} cx="50%" cy="50%" outerRadius={90} dataKey="value" labelLine={false} label={PieLabel}
-                      onClick={() => navigate("/projects")} style={{ cursor: "pointer" }}>
-                      {projectPieData.map((entry) => (
-                        <Cell key={entry.name} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip {...tooltipStyle} />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="space-y-3 flex-1">
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                <div className="w-full sm:w-[55%] h-[220px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={projectPieData} cx="50%" cy="50%" outerRadius="80%" dataKey="value" labelLine={false} label={PieLabel}
+                        onClick={() => navigate("/projects")} style={{ cursor: "pointer" }}>
+                        {projectPieData.map((entry) => (
+                          <Cell key={entry.name} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip {...tooltipStyle} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="space-y-3 w-full sm:flex-1">
                   {projectPieData.map((d) => (
                     <div key={d.name} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -402,14 +406,16 @@ function Dashboard() {
           {/* Staff Attendance */}
           <div className="w-full lg:w-1/2">
             <ChartCard title="Staff Attendance" subtitle="Today's attendance status" icon={Users} iconColor="text-green-500" delay={0.25} onClick={() => navigate("/staff")}>
-              <div className="flex items-center gap-6">
-                <ResponsiveContainer width="55%" height={220}>
-                  <RadialBarChart cx="50%" cy="50%" innerRadius={40} outerRadius={90} data={staffAttendanceData} startAngle={90} endAngle={-270}>
-                    <RadialBar dataKey="value" cornerRadius={8} background={{ fill: "#f1f5f9" }} />
-                    <Tooltip {...tooltipStyle} />
-                  </RadialBarChart>
-                </ResponsiveContainer>
-                <div className="space-y-4 flex-1">
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                <div className="w-full sm:w-[55%] h-[220px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadialBarChart cx="50%" cy="50%" innerRadius="40%" outerRadius="80%" data={staffAttendanceData} startAngle={90} endAngle={-270}>
+                      <RadialBar dataKey="value" cornerRadius={8} background={{ fill: "#f1f5f9" }} />
+                      <Tooltip {...tooltipStyle} />
+                    </RadialBarChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="space-y-4 w-full sm:flex-1">
                   <div className="bg-slate-50 rounded-2xl p-3 text-center">
                     <p className="text-xs text-gray-500">Total Staff</p>
                     <p className="text-2xl font-bold text-slate-800 mt-1">{totalStaff}</p>
