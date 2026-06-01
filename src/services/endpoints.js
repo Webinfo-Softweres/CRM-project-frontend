@@ -1,0 +1,21 @@
+export const ENDPOINTS = {
+  LOGIN: "/auth/login",
+  CHECK_ROLE: "/auth/role",
+  LOGOUT: "/auth/logout",
+  PROFILE: "/profile",
+  USERS: "/users/",
+  ROLES: "/roles/",
+  DEPARTMENTS: "/departments/",
+  PERMISSIONS: "/permissions/",
+  CUSTOMERS: "/customers/",
+  ENQUIRIES: "/enquiries/",
+  QUOTATIONS: "/quotations/",
+  PROJECTS: "/projects/",
+  TASKS: "/tasks/",
+  REPORTS: "/reports/",
+  FEEDBACK: "/feedback/",
+  NOTIFICATIONS: "/notifications/",
+  ACTIVITY_LOG: "/activity_log/",
+  ATTENDANCE: "/attendance/",
+};
+
