@@ -168,7 +168,7 @@ function Navbar({ setSidebarOpen }) {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-3xl shadow-xl border border-gray-100 py-3 z-50 overflow-hidden"
+                    className="fixed top-16 left-3 right-3 sm:absolute sm:top-auto sm:left-auto sm:right-0 sm:mt-2 sm:w-96 bg-white rounded-3xl shadow-xl border border-gray-100 py-3 z-50 overflow-hidden"
                   >
                     <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
                       <h3 className="font-bold text-slate-800 text-sm flex items-center gap-1.5">

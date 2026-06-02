@@ -36,7 +36,9 @@ function WorkReportForm() {
     : null;
 
   // Get logged in user's ID
-  const loggedInUserId = useSelector((state) => state.auth.user?.id) || (Cookies.get("user_id") ? Number(Cookies.get("user_id")) : "");
+  const authUser = useSelector((state) => state.auth.user);
+  const loggedInUserId = authUser?.id || (Cookies.get("user_id") ? Number(Cookies.get("user_id")) : "");
+  const loggedInUserName = authUser?.name || "";
 
   const [form, setForm] = useState({
     user_id: loggedInUserId || "",
@@ -166,26 +168,16 @@ function WorkReportForm() {
                 Staff Name *
               </label>
 
-              <div className={`flex items-center border border-gray-300 rounded-2xl px-4 py-3 mt-2 ${isEdit ? "bg-gray-50 border-gray-200 opacity-75" : "focus-within:ring-2 focus-within:ring-blue-500"}`}>
+              <div className="flex items-center border border-gray-300 rounded-2xl px-4 py-3 mt-2 bg-gray-50 border-gray-200 opacity-75">
                 <User size={18} className="text-gray-400" />
 
-                <select
-                  name="user_id"
-                  value={form.user_id}
-                  onChange={handleChange}
+                <input
+                  type="text"
+                  value={users.find(u => String(u.id) === String(form.user_id))?.name || loggedInUserName || ""}
                   className="w-full ml-3 outline-none bg-transparent"
-                  required
-                  disabled={isEdit}
-                >
-                  <option value="" disabled>
-                    {usersLoading ? "Loading staff..." : "Select staff"}
-                  </option>
-                  {users.map((user) => (
-                    <option key={user.id} value={user.id}>
-                      {user.name}
-                    </option>
-                  ))}
-                </select>
+                  readOnly
+                  placeholder={usersLoading ? "Loading..." : ""}
+                />
               </div>
             </div>
 

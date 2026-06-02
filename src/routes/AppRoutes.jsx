@@ -37,6 +37,7 @@ import MyTasks from "../pages/tasks/MyTasks";
 import DailyWorkReport from "../pages/tasks/DailyWorkReport";
 import WorkReportList from "../pages/workReports/WorkReportList";
 import WorkReportForm from "../pages/workReports/WorkReportForm";
+import WorkReportDetails from "../pages/workReports/WorkReportDetails";
 
 import FeedbackList from "../pages/feedback/FeedbackList";
 import FeedbackForm from "../pages/feedback/FeedbackForm";
@@ -97,6 +98,7 @@ function AppRoutes() {
         <Route path="/work-reports" element={<ProtectedRoute permission="reports:read"><WorkReportList /></ProtectedRoute>} />
         <Route path="/work-reports/create" element={<ProtectedRoute permission="reports:create"><WorkReportForm /></ProtectedRoute>} />
         <Route path="/work-reports/edit/:id" element={<ProtectedRoute permission="reports:update"><WorkReportForm /></ProtectedRoute>} />
+        <Route path="/work-reports/:id" element={<ProtectedRoute permission="reports:read"><WorkReportDetails /></ProtectedRoute>} />
         <Route path="/daily-report" element={<ProtectedRoute><DailyWorkReport /></ProtectedRoute>} />
         <Route path="/feedback" element={<ProtectedRoute permission="feedback:read"><FeedbackList /></ProtectedRoute>} />
         <Route path="/feedback/add" element={<ProtectedRoute permission="feedback:create"><FeedbackForm /></ProtectedRoute>} />

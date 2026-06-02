@@ -1,3 +1,4 @@
+import Pagination from "../../components/common/Pagination";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -643,37 +644,11 @@ function TaskList() {
                 tasks
               </p>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => goToPage(safePage - 1)}
-                  disabled={safePage === 1}
-                  className="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-100 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm"
-                >
-                  Previous
-                </button>
-
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => goToPage(page)}
-                    className={`px-4 py-2 rounded-xl transition-all text-sm ${
-                      safePage === page
-                        ? "bg-blue-600 text-white shadow"
-                        : "border border-gray-300 hover:bg-gray-100"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-
-                <button
-                  onClick={() => goToPage(safePage + 1)}
-                  disabled={safePage === totalPages}
-                  className="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-100 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm"
-                >
-                  Next
-                </button>
-              </div>
+              <Pagination 
+                  currentPage={safePage} 
+                  totalPages={totalPages} 
+                  onPageChange={goToPage} 
+                />
             </div>
           </>
         )}

@@ -1,3 +1,4 @@
+import Pagination from "../../components/common/Pagination";
 // src/pages/notifications/NotificationList.jsx
 
 import { useEffect, useState } from "react";
@@ -590,40 +591,11 @@ function NotificationList() {
               notifications
             </p>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => goToPage(safePage - 1)}
-                disabled={safePage === 1}
-                className="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-              >
-                Previous
-              </button>
-
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <button
-                  key={page}
-                  type="button"
-                  onClick={() => goToPage(page)}
-                  className={`px-4 py-2 rounded-xl transition-all text-sm font-medium ${
-                    safePage === page
-                      ? "bg-blue-600 text-white shadow"
-                      : "border border-gray-300 hover:bg-gray-100"
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
-
-              <button
-                type="button"
-                onClick={() => goToPage(safePage + 1)}
-                disabled={safePage === totalPages}
-                className="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-              >
-                Next
-              </button>
-            </div>
+            <Pagination 
+                  currentPage={safePage} 
+                  totalPages={totalPages} 
+                  onPageChange={goToPage} 
+                />
           </div>
         )}
       </div>

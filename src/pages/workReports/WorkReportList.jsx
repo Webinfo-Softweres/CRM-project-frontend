@@ -1,3 +1,4 @@
+import Pagination from "../../components/common/Pagination";
 // src/pages/workReports/WorkReportList.jsx
 
 import { useState, useEffect } from "react";
@@ -14,6 +15,7 @@ import {
   ClipboardCheck,
   FileText,
   Filter,
+  Eye,
   Pencil,
   Plus,
   Search,
@@ -29,7 +31,7 @@ import { usePermissions } from "../../hooks/usePermissions";
 function WorkReportList() {
   const dispatch = useDispatch();
   const { can } = usePermissions();
-  const hasActions = can("reports:update") || can("reports:delete");
+  const hasActions = true;
   const { items: reports, loading, error, deleteLoading } = useSelector((state) => state.workReports);
   const users = useSelector((state) => state.users.items);
   const usersLoading = useSelector((state) => state.users.loading);
@@ -402,7 +404,7 @@ function WorkReportList() {
                             </td>
 
                             <td className="p-5">
-                              <p className="text-sm text-slate-600 max-w-sm leading-6">
+                              <p className="text-sm text-slate-600 max-w-sm leading-6 line-clamp-2" title={report.summary}>
                                 {report.summary}
                               </p>
                             </td>
@@ -421,6 +423,10 @@ function WorkReportList() {
                             {hasActions && (
                               <td className="p-5">
                                 <div className="flex items-center gap-2">
+                                  <Link to={`/work-reports/${report.id}`} className="w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-all duration-200">
+                                    <Eye size={16} />
+                                  </Link>
+
                                   {can("reports:update") && (
                                     <Link to={`/work-reports/edit/${report.id}`} className="w-10 h-10 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center transition-all duration-200">
                                       <Pencil size={16} />
@@ -525,12 +531,17 @@ function WorkReportList() {
                         {formatDate(report.report_date)}
                       </div>
 
-                      <div className="bg-slate-50 rounded-2xl p-3 text-sm text-slate-600 leading-6">
+                      <div className="bg-slate-50 rounded-2xl p-3 text-sm text-slate-600 leading-6 line-clamp-2" title={report.summary}>
                         {report.summary}
                       </div>
                     </div>
 
-                    <div className="mt-5 flex gap-3">
+                    <div className="mt-5 flex gap-3 flex-wrap">
+                      <Link to={`/work-reports/${report.id}`} className="flex-1 h-11 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-600 flex items-center justify-center gap-2 transition-all duration-200">
+                        <Eye size={16} />
+                        View
+                      </Link>
+
                       {can("reports:update") && (
                         <Link to={`/work-reports/edit/${report.id}`} className="flex-1 h-11 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center gap-2 transition-all duration-200">
                           <Pencil size={16} />
@@ -565,40 +576,11 @@ function WorkReportList() {
                 reports
               </p>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => goToPage(safePage - 1)}
-                  disabled={safePage === 1}
-                  className="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    type="button"
-                    onClick={() => goToPage(page)}
-                    className={`px-4 py-2 rounded-xl transition-all ${
-                      safePage === page
-                        ? "bg-blue-600 text-white shadow"
-                        : "border border-gray-300 hover:bg-gray-100"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-
-                <button
-                  type="button"
-                  onClick={() => goToPage(safePage + 1)}
-                  disabled={safePage === totalPages}
-                  className="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
-              </div>
+              <Pagination 
+                  currentPage={safePage} 
+                  totalPages={totalPages} 
+                  onPageChange={goToPage} 
+                />
             </div>
           </>
         )}

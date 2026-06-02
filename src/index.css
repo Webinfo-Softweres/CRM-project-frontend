@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@theme {
+  --radius-sm: 0.25rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.25rem;
+  --radius-2xl: 0.25rem;
+  --radius-3xl: 0.25rem;
+}
+
 .sidebar-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: rgb(71 85 105) transparent;
