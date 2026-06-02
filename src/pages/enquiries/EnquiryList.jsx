@@ -16,6 +16,7 @@ import {
   Share2,
   ClipboardList,
   Clock3,
+
   MessageSquareMore,
   Pencil,
   Trash2,
@@ -23,6 +24,10 @@ import {
 } from "lucide-react";
 
 import { motion, AnimatePresence } from "framer-motion";
+import AnimatedPage from "../../components/animations/AnimatedPage";
+import AnimatedCard from "../../components/animations/AnimatedCard";
+import AnimatedTableBody from "../../components/animations/AnimatedTableBody";
+import AnimatedTableRow from "../../components/animations/AnimatedTableRow";
 import toast from "react-hot-toast";
 
 import { Link, useNavigate } from "react-router-dom";
@@ -212,7 +217,7 @@ function EnquiryList() {
         )}
       </AnimatePresence>
 
-      <div className="space-y-5 md:space-y-6 flex-1 flex flex-col">
+      <AnimatedPage className="space-y-5 md:space-y-6 flex-1 flex flex-col">
         {/* Header */}
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -237,9 +242,9 @@ function EnquiryList() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+        <AnimatedPage className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
           {/* Total */}
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Total Enquiries</p>
@@ -253,10 +258,10 @@ function EnquiryList() {
                 <ClipboardList className="text-blue-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
           {/* New */}
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div>
               <p className="text-gray-500 text-sm">New Enquiries</p>
 
@@ -264,10 +269,10 @@ function EnquiryList() {
                 {newEnquiries}
               </h2>
             </div>
-          </div>
+          </AnimatedCard>
 
           {/* Follow Up */}
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div>
               <p className="text-gray-500 text-sm">Follow Up</p>
 
@@ -275,10 +280,10 @@ function EnquiryList() {
                 {followupEnquiries}
               </h2>
             </div>
-          </div>
+          </AnimatedCard>
 
           {/* Closed */}
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div>
               <p className="text-gray-500 text-sm">Closed</p>
 
@@ -286,8 +291,8 @@ function EnquiryList() {
                 {closedEnquiries}
               </h2>
             </div>
-          </div>
-        </div>
+          </AnimatedCard>
+        </AnimatedPage>
 
         {/* Search & Filter Bar */}
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 flex flex-col xl:flex-row gap-4 xl:items-center justify-between">
@@ -383,9 +388,9 @@ function EnquiryList() {
                 </tr>
               </thead>
 
-              <tbody>
+              <AnimatedTableBody>
                 {paginatedEnquiries.map((enquiry) => (
-                  <tr
+                  <AnimatedTableRow
                     key={enquiry.id}
                     className="border-b border-slate-100 hover:bg-blue-50/40 transition-all duration-200"
                   >
@@ -552,9 +557,9 @@ function EnquiryList() {
                         </div>
                       </td>
                     )}
-                  </tr>
+                  </AnimatedTableRow>
                 ))}
-              </tbody>
+              </AnimatedTableBody>
             </table>
           </div>
 
@@ -736,9 +741,9 @@ function EnquiryList() {
                   onPageChange={goToPage} 
                 />
         </div>
-      </>
-    )}
-      </div>
+          </>
+        )}
+      </AnimatedPage>
     </AdminLayout>
   );
 }

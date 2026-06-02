@@ -21,6 +21,10 @@ import {
 
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import AnimatedPage from "../../components/animations/AnimatedPage";
+import AnimatedCard from "../../components/animations/AnimatedCard";
+import AnimatedTableBody from "../../components/animations/AnimatedTableBody";
+import AnimatedTableRow from "../../components/animations/AnimatedTableRow";
 
 import { fetchPermissions, deletePermissionData } from "../../redux/permissionSlice";
 import toast from "react-hot-toast";
@@ -204,7 +208,7 @@ function PermissionList() {
         )}
       </AnimatePresence>
 
-      <div className="space-y-5 md:space-y-6 flex-1 flex flex-col">
+      <AnimatedPage className="space-y-5 md:space-y-6 flex-1 flex flex-col">
 
         {/* Header */}
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -229,8 +233,8 @@ function PermissionList() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5">
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+        <AnimatedPage className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Total Permissions</p>
@@ -242,9 +246,9 @@ function PermissionList() {
                 <Shield className="text-blue-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Unique Modules</p>
@@ -256,9 +260,9 @@ function PermissionList() {
                 <Layers className="text-green-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Unique Actions</p>
@@ -270,8 +274,8 @@ function PermissionList() {
                 <Lock className="text-orange-600" />
               </div>
             </div>
-          </div>
-        </div>
+          </AnimatedCard>
+        </AnimatedPage>
 
         {/* Search & Filters */}
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-4 md:p-5 flex flex-col xl:flex-row gap-4 xl:items-center xl:justify-between">
@@ -371,11 +375,7 @@ function PermissionList() {
         ) : (
           <>
             {/* Desktop Table — always renders with thead */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="hidden lg:block bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden"
-            >
+            <AnimatedPage className="hidden lg:block bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[820px]">
                   <thead className="bg-slate-50 border-b border-slate-200">
@@ -399,7 +399,7 @@ function PermissionList() {
                       )}
                     </tr>
                   </thead>
-                  <tbody>
+                  <AnimatedTableBody>
                     {filteredPermissions.length === 0 ? (
                       <tr>
                         <td colSpan={hasActions ? 5 : 4} className="py-16 text-center">
@@ -430,7 +430,7 @@ function PermissionList() {
                           [...new Set(filteredPermissions.map((p) => p.module))].indexOf(perm.module) % modulePalette.length
                         ];
                         return (
-                          <tr
+                          <AnimatedTableRow
                             key={perm.id}
                             className="border-b border-slate-100 hover:bg-blue-50/40 transition-all duration-200"
                           >
@@ -493,14 +493,14 @@ function PermissionList() {
                                 </div>
                               </td>
                             )}
-                          </tr>
+                          </AnimatedTableRow>
                         );
                       })
                     )}
-                  </tbody>
+                  </AnimatedTableBody>
                 </table>
               </div>
-            </motion.div>
+            </AnimatedPage>
 
             {/* Mobile / Tablet — Module Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 lg:hidden">
@@ -528,11 +528,8 @@ function PermissionList() {
                 pagedModules.map(([moduleName, perms], idx) => {
                   const palette = modulePalette[idx % modulePalette.length];
                   return (
-                    <motion.div
+                    <AnimatedCard
                       key={moduleName}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.04 }}
                       className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden"
                     >
                       {/* Card Header */}
@@ -594,7 +591,7 @@ function PermissionList() {
                           </div>
                         ))}
                       </div>
-                    </motion.div>
+                    </AnimatedCard>
                   );
                 })
               )}
@@ -620,7 +617,7 @@ function PermissionList() {
                 />
           </div>
         )}
-      </div>
+      </AnimatedPage>
     </AdminLayout>
   );
 }

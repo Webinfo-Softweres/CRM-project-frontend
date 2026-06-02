@@ -18,6 +18,7 @@ import {
   Users,
   ShieldCheck,
   Building2,
+
   Pencil,
   Trash2,
   ChevronDown,
@@ -25,6 +26,10 @@ import {
 import toast from "react-hot-toast";
 
 import { motion, AnimatePresence } from "framer-motion";
+import AnimatedPage from "../../components/animations/AnimatedPage";
+import AnimatedCard from "../../components/animations/AnimatedCard";
+import AnimatedTableBody from "../../components/animations/AnimatedTableBody";
+import AnimatedTableRow from "../../components/animations/AnimatedTableRow";
 
 import { Link } from "react-router-dom";
 import { usePermissions } from "../../hooks/usePermissions";
@@ -189,7 +194,7 @@ function UsersList() {
         )}
       </AnimatePresence>
 
-      <div className="space-y-5 md:space-y-6 flex-1 flex flex-col">
+      <AnimatedPage className="space-y-5 md:space-y-6 flex-1 flex flex-col">
         {/* Header */}
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
@@ -214,9 +219,9 @@ function UsersList() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+        <AnimatedPage className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
           {/* Card */}
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Total Users</p>
@@ -230,9 +235,9 @@ function UsersList() {
                 <Users className="text-blue-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Roles</p>
@@ -246,9 +251,9 @@ function UsersList() {
                 <ShieldCheck className="text-purple-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Departments</p>
@@ -262,9 +267,9 @@ function UsersList() {
                 <Building2 className="text-orange-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Active Users</p>
@@ -278,8 +283,8 @@ function UsersList() {
                 <Users className="text-green-600" />
               </div>
             </div>
-          </div>
-        </div>
+          </AnimatedCard>
+        </AnimatedPage>
 
         {/* Search & Filter Bar */}
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 flex flex-col xl:flex-row gap-4 xl:items-center justify-between">
@@ -414,9 +419,9 @@ function UsersList() {
                   </tr>
                 </thead>
 
-                <tbody>
+                <AnimatedTableBody>
                   {paginatedUsers.map((user) => (
-                    <tr
+                    <AnimatedTableRow
                       key={user.id}
                       className="border-b border-slate-100 hover:bg-blue-50/40 transition-all duration-200"
                     >
@@ -512,9 +517,9 @@ function UsersList() {
                           </div>
                         </td>
                       )}
-                    </tr>
+                    </AnimatedTableRow>
                   ))}
-                </tbody>
+                </AnimatedTableBody>
               </table>
             </div>
 
@@ -676,7 +681,7 @@ function UsersList() {
         </div>
       </>
     )}
-      </div>
+      </AnimatedPage>
     </AdminLayout>
   );
 }

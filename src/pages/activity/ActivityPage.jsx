@@ -18,8 +18,11 @@ import {
   ChevronDown,
 } from "lucide-react";
 
-import { motion } from "framer-motion";
-
+import { motion, AnimatePresence } from "framer-motion";
+import AnimatedPage from "../../components/animations/AnimatedPage";
+import AnimatedCard from "../../components/animations/AnimatedCard";
+import AnimatedTableBody from "../../components/animations/AnimatedTableBody";
+import AnimatedTableRow from "../../components/animations/AnimatedTableRow";
 const PAGE_SIZE = 5;
 
 // Module labels
@@ -99,7 +102,7 @@ function ActivityPage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6 flex-1 flex flex-col">
+      <AnimatedPage className="space-y-6 flex-1 flex flex-col">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-slate-800">Activity Logs</h1>
@@ -109,9 +112,9 @@ function ActivityPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+        <AnimatedPage className="grid grid-cols-1 md:grid-cols-4 gap-5">
           {/* Total Logs */}
-          <div className="bg-white rounded-3xl shadow-sm p-5 border border-slate-100">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm p-5 border border-slate-100">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Total Activities</p>
@@ -123,32 +126,32 @@ function ActivityPage() {
                 <Activity className="text-blue-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
           {/* Enquiries */}
-          <div className="bg-white rounded-3xl shadow-sm p-5 border border-slate-100">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm p-5 border border-slate-100">
             <p className="text-gray-500 text-sm">Enquiry Logs</p>
             <h2 className="text-3xl font-bold mt-2 text-blue-600">
               {activityList.filter((item) => item.module === "enquiry").length}
             </h2>
-          </div>
+          </AnimatedCard>
 
           {/* Quotations */}
-          <div className="bg-white rounded-3xl shadow-sm p-5 border border-slate-100">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm p-5 border border-slate-100">
             <p className="text-gray-500 text-sm">Quotation Logs</p>
             <h2 className="text-3xl font-bold mt-2 text-green-600">
               {activityList.filter((item) => item.module === "quotation").length}
             </h2>
-          </div>
+          </AnimatedCard>
 
           {/* Tasks */}
-          <div className="bg-white rounded-3xl shadow-sm p-5 border border-slate-100">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm p-5 border border-slate-100">
             <p className="text-gray-500 text-sm">Task Logs</p>
             <h2 className="text-3xl font-bold mt-2 text-purple-600">
               {activityList.filter((item) => item.module === "task").length}
             </h2>
-          </div>
-        </div>
+          </AnimatedCard>
+        </AnimatedPage>
 
         {/* Search */}
         <div className="bg-white rounded-3xl shadow-sm p-5 border border-slate-100 flex flex-col xl:flex-row gap-4 xl:items-center xl:justify-between">
@@ -233,11 +236,8 @@ function ActivityPage() {
         ) : (
           <>
             {/* Activity Table */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="hidden xl:block bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden"
-            >
+            {/* Activity Table */}
+            <AnimatedPage className="hidden xl:block bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-slate-50 border-b border-slate-200">
@@ -260,9 +260,9 @@ function ActivityPage() {
                     </tr>
                   </thead>
 
-                  <tbody>
+                  <AnimatedTableBody>
                     {paginatedData.map((activity) => (
-                      <tr
+                      <AnimatedTableRow
                         key={activity.id}
                         className="border-b border-slate-100 hover:bg-blue-50/40 transition-all duration-200"
                       >
@@ -303,7 +303,7 @@ function ActivityPage() {
                         <td className="p-5 text-sm text-gray-600">
                           {activity.changed_at}
                         </td>
-                      </tr>
+                      </AnimatedTableRow>
                     ))}
                     {paginatedData.length === 0 && (
                       <tr>
@@ -312,18 +312,16 @@ function ActivityPage() {
                         </td>
                       </tr>
                     )}
-                  </tbody>
+                  </AnimatedTableBody>
                 </table>
               </div>
-            </motion.div>
+            </AnimatedPage>
 
             {/* Activity Cards */}
             <div className="grid grid-cols-1 gap-4 xl:hidden">
               {paginatedData.map((activity) => (
-                <motion.div
+                <AnimatedCard
                   key={activity.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
                   className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5"
                 >
                   <div className="flex items-center justify-between gap-4">
@@ -355,9 +353,9 @@ function ActivityPage() {
                       <Clock3 size={16} />
                       {activity.changed_at}
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                    </div>
+                  </AnimatedCard>
+                ))}
               {paginatedData.length === 0 && (
                 <div className="bg-white rounded-3xl p-8 border border-slate-100 text-center text-gray-500 text-sm">
                   No matching activities found
@@ -387,7 +385,7 @@ function ActivityPage() {
             )}
           </>
         )}
-      </div>
+      </AnimatedPage>
     </AdminLayout>
   );
 }

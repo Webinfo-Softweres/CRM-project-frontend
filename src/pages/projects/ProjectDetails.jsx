@@ -30,6 +30,8 @@ import {
 } from "lucide-react";
 
 import { motion } from "framer-motion";
+import AnimatedPage from "../../components/animations/AnimatedPage";
+import AnimatedCard from "../../components/animations/AnimatedCard";
 
 import { Link, useParams } from "react-router-dom";
 
@@ -64,7 +66,7 @@ function StaffValue({ staffBundle, fallbackName }) {
 
 function DetailGroup({ title, icon: Icon, iconClass, children }) {
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+    <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
         <div className={`p-2.5 rounded-xl ${iconClass}`}>
           <Icon size={18} />
@@ -72,7 +74,7 @@ function DetailGroup({ title, icon: Icon, iconClass, children }) {
         <h2 className="text-lg font-bold text-slate-800">{title}</h2>
       </div>
       <dl className="px-6 py-2">{children}</dl>
-    </div>
+    </AnimatedCard>
   );
 }
 
@@ -182,7 +184,7 @@ function ProjectDetails() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <AnimatedPage className="space-y-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -295,11 +297,7 @@ function ProjectDetails() {
 
           {/* Timeline */}
           <div className="xl:col-span-1">
-            <motion.div
-              initial={{ opacity: 0, x: 12 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sticky top-6"
-            >
+            <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sticky top-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2.5 rounded-xl bg-slate-100 text-slate-600">
                   <Clock size={18} />
@@ -341,11 +339,11 @@ function ProjectDetails() {
                   </ul>
                 </div>
               )}
-            </motion.div>
+            </AnimatedCard>
           </div>
         </div>
 
-      </div>
+      </AnimatedPage>
     </AdminLayout>
   );
 }

@@ -1,13 +1,13 @@
 // DashboardLayout.jsx
 
 import { useState } from "react";
-
-import { NavLink, Outlet } from "react-router-dom";
-
+import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, FolderKanban } from "lucide-react";
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
 
   const navClass =
     "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200";
@@ -67,7 +67,7 @@ const DashboardLayout = () => {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 min-h-screen">
+      <main className="flex-1 min-h-screen flex flex-col">
         {/* Mobile Header */}
         <div className="md:hidden sticky top-0 z-30 bg-white border-b border-slate-200 px-4 py-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-slate-800">Workflow CRM</h2>
@@ -81,9 +81,18 @@ const DashboardLayout = () => {
         </div>
 
         {/* Content */}
-        <div className="p-4 md:p-6">
-          <Outlet />
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="p-4 md:p-6 flex-1"
+          >
+            <Outlet />
+          </motion.div>
+        </AnimatePresence>
       </main>
     </div>
   );

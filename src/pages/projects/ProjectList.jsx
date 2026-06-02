@@ -28,6 +28,11 @@ import {
 
 import { motion, AnimatePresence } from "framer-motion";
 
+import AnimatedPage from "../../components/animations/AnimatedPage";
+import AnimatedCard from "../../components/animations/AnimatedCard";
+import AnimatedTableBody from "../../components/animations/AnimatedTableBody";
+import AnimatedTableRow from "../../components/animations/AnimatedTableRow";
+
 import { Link } from "react-router-dom";
 import { usePermissions } from "../../hooks/usePermissions";
 
@@ -198,7 +203,7 @@ function ProjectList() {
         )}
       </AnimatePresence>
 
-      <div className="space-y-5 md:space-y-6 flex-1 flex flex-col">
+      <AnimatedPage className="space-y-5 md:space-y-6 flex-1 flex flex-col">
         {/* Header */}
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
@@ -222,8 +227,8 @@ function ProjectList() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+        <AnimatedPage className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Total Projects</p>
@@ -235,9 +240,9 @@ function ProjectList() {
                 <FolderKanban className="text-blue-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Ongoing</p>
@@ -249,9 +254,9 @@ function ProjectList() {
                 <CalendarDays className="text-green-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Completed</p>
@@ -263,9 +268,9 @@ function ProjectList() {
                 <CheckCircle2 className="text-blue-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">On Hold</p>
@@ -277,8 +282,8 @@ function ProjectList() {
                 <PauseCircle className="text-yellow-600" />
               </div>
             </div>
-          </div>
-        </div>
+          </AnimatedCard>
+        </AnimatedPage>
 
         {/* Search & Filter */}
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 flex flex-col xl:flex-row gap-4 xl:items-center justify-between">
@@ -367,9 +372,9 @@ function ProjectList() {
                   </tr>
                 </thead>
 
-                <tbody>
+                <AnimatedTableBody>
                   {paginatedProjects.map((project) => (
-                    <tr
+                    <AnimatedTableRow
                       key={project.id}
                       className="border-b border-slate-100 hover:bg-blue-50/40 transition-all duration-200"
                     >
@@ -534,9 +539,9 @@ function ProjectList() {
                           </div>
                         </td>
                       )}
-                    </tr>
+                    </AnimatedTableRow>
                   ))}
-                </tbody>
+                </AnimatedTableBody>
               </table>
             </div>
 
@@ -734,7 +739,7 @@ function ProjectList() {
         </div>
       </>
     )}
-      </div>
+      </AnimatedPage>
     </AdminLayout>
   );
 }

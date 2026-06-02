@@ -25,7 +25,10 @@ import {
 } from "lucide-react";
 
 import { motion, AnimatePresence } from "framer-motion";
-
+import AnimatedPage from "../../components/animations/AnimatedPage";
+import AnimatedCard from "../../components/animations/AnimatedCard";
+import AnimatedTableBody from "../../components/animations/AnimatedTableBody";
+import AnimatedTableRow from "../../components/animations/AnimatedTableRow";
 const PAGE_SIZE = 5;
 
 const formatDate = (dateString) => {
@@ -182,7 +185,7 @@ function FeedbackList() {
         )}
       </AnimatePresence>
 
-      <div className="space-y-6 flex-1 flex flex-col">
+      <AnimatedPage className="space-y-6 flex-1 flex flex-col">
 
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -207,8 +210,8 @@ function FeedbackList() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+        <AnimatedPage className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Total Feedback</p>
@@ -220,9 +223,9 @@ function FeedbackList() {
                 <MessageSquareText className="text-blue-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Average Rating</p>
@@ -234,9 +237,9 @@ function FeedbackList() {
                 <Star className="text-yellow-500" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Positive Reviews</p>
@@ -248,8 +251,8 @@ function FeedbackList() {
                 <TrendingUp className="text-green-600" />
               </div>
             </div>
-          </div>
-        </div>
+          </AnimatedCard>
+        </AnimatedPage>
 
         {/* Search */}
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
@@ -287,11 +290,7 @@ function FeedbackList() {
 
         {/* Desktop Table */}
         {!loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="hidden lg:block bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden"
-          >
+          <AnimatedPage className="hidden lg:block bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[860px]">
                 <thead className="bg-slate-50 border-b border-gray-200">
@@ -319,7 +318,7 @@ function FeedbackList() {
                   </tr>
                 </thead>
 
-                <tbody>
+                <AnimatedTableBody>
                   {paginated.length === 0 ? (
                     <tr>
                       <td colSpan={hasActions ? 6 : 5} className="py-16 text-center">
@@ -347,7 +346,7 @@ function FeedbackList() {
                     </tr>
                   ) : (
                     paginated.map((fb) => (
-                      <tr
+                      <AnimatedTableRow
                         key={fb.id}
                         className="border-b border-slate-100 hover:bg-blue-50/40 transition-all duration-200"
                       >
@@ -418,13 +417,13 @@ function FeedbackList() {
                             </div>
                           </td>
                         )}
-                      </tr>
+                      </AnimatedTableRow>
                     ))
                   )}
-                </tbody>
+                </AnimatedTableBody>
               </table>
             </div>
-          </motion.div>
+          </AnimatedPage>
         )}
 
         {/* Mobile Cards */}
@@ -453,10 +452,8 @@ function FeedbackList() {
               </div>
             ) : (
               paginated.map((fb) => (
-                <motion.div
+                <AnimatedCard
                   key={fb.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
                   className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5"
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -511,7 +508,7 @@ function FeedbackList() {
                       )}
                     </div>
                   </div>
-                </motion.div>
+                </AnimatedCard>
               ))
             )}
           </div>
@@ -537,7 +534,7 @@ function FeedbackList() {
                 />
           </div>
         )}
-      </div>
+      </AnimatedPage>
     </AdminLayout>
   );
 }

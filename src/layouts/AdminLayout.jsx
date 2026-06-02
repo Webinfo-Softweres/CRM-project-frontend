@@ -1,12 +1,15 @@
 // AdminLayout.jsx
 
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 import Sidebar from "../components/common/Sidebar";
 import Navbar from "../components/common/Navbar";
 
 function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
 
   // Auto open only on desktop
   useEffect(() => {
@@ -36,7 +39,18 @@ function AdminLayout({ children }) {
         <Navbar setSidebarOpen={setSidebarOpen} />
 
         {/* Page Content */}
-        <div className="p-4 md:p-6 flex-1 flex flex-col">{children}</div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="p-4 md:p-6 flex-1 flex flex-col"
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

@@ -2,7 +2,11 @@ import Pagination from "../../components/common/Pagination";
 import { useEffect, useState, Fragment } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AdminLayout from "../../layouts/AdminLayout";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import AnimatedPage from "../../components/animations/AnimatedPage";
+import AnimatedCard from "../../components/animations/AnimatedCard";
+import AnimatedTableBody from "../../components/animations/AnimatedTableBody";
+import AnimatedTableRow from "../../components/animations/AnimatedTableRow";
 import {
   Clock,
   Fingerprint,
@@ -122,7 +126,7 @@ function AttendancePage() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6 flex-1 flex flex-col">
+      <AnimatedPage className="space-y-6 flex-1 flex flex-col">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
@@ -136,8 +140,8 @@ function AttendancePage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+        <AnimatedPage className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Total Users</p>
@@ -149,9 +153,9 @@ function AttendancePage() {
                 <Fingerprint className="text-blue-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Filtered Results</p>
@@ -163,8 +167,8 @@ function AttendancePage() {
                 <User className="text-indigo-600" />
               </div>
             </div>
-          </div>
-        </div>
+          </AnimatedCard>
+        </AnimatedPage>
 
         {/* Filters */}
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 flex flex-col md:flex-row gap-4 md:items-center justify-between">
@@ -267,11 +271,7 @@ function AttendancePage() {
 
         {/* Desktop Table View */}
         {!loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="hidden lg:block bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden"
-          >
+          <AnimatedPage className="hidden lg:block bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[600px]">
                 {viewType === "Today" ? (
@@ -297,7 +297,7 @@ function AttendancePage() {
                   </thead>
                 )}
 
-                <tbody>
+                <AnimatedTableBody>
                   {paginatedData.length === 0 ? (
                     <tr>
                       <td colSpan={viewType === "Today" ? 5 : 6} className="py-16 text-center">
@@ -315,7 +315,7 @@ function AttendancePage() {
                   ) : (
                     paginatedData.map((record, idx) => (
                       <Fragment key={idx}>
-                        <tr
+                        <AnimatedTableRow
                           onClick={() => toggleRow(record.employee_id)}
                           className="border-b border-slate-100 hover:bg-blue-50/40 transition-all duration-200 cursor-pointer"
                         >
@@ -383,7 +383,7 @@ function AttendancePage() {
                               </td>
                             </>
                           )}
-                        </tr>
+                        </AnimatedTableRow>
                         {expandedRows[record.employee_id] && viewType === "Today" && (
                           <tr className="bg-slate-50/50 border-b border-slate-100">
                             <td colSpan={5} className="p-5">
@@ -464,10 +464,10 @@ function AttendancePage() {
                       </Fragment>
                     ))
                   )}
-                </tbody>
+                </AnimatedTableBody>
               </table>
             </div>
-          </motion.div>
+          </AnimatedPage>
         )}
 
         {/* Mobile Grid/Cards View */}
@@ -485,11 +485,9 @@ function AttendancePage() {
               </div>
             ) : (
               paginatedData.map((record, idx) => (
-                <motion.div
+                <AnimatedCard
                   key={idx}
                   onClick={() => toggleRow(record.employee_id)}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
                   className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 flex flex-col justify-between cursor-pointer"
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -622,7 +620,7 @@ function AttendancePage() {
                       )}
                     </div>
                   )}
-                </motion.div>
+                </AnimatedCard>
               ))
             )}
           </div>
@@ -651,7 +649,7 @@ function AttendancePage() {
                 />
           </div>
         )}
-      </div>
+      </AnimatedPage>
     </AdminLayout>
   );
 }

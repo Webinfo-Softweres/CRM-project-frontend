@@ -8,6 +8,11 @@ import { usePermissions } from "../../hooks/usePermissions";
 
 import AdminLayout from "../../layouts/AdminLayout";
 
+import AnimatedPage from "../../components/animations/AnimatedPage";
+import AnimatedCard from "../../components/animations/AnimatedCard";
+import AnimatedTableBody from "../../components/animations/AnimatedTableBody";
+import AnimatedTableRow from "../../components/animations/AnimatedTableRow";
+
 import PriorityBadge from "../../components/ui/PriorityBadge";
 
 import {
@@ -200,7 +205,7 @@ function TaskList() {
         )}
       </AnimatePresence>
 
-      <div className="space-y-6 flex-1 flex flex-col">
+      <AnimatedPage className="space-y-6 flex-1 flex flex-col">
 
         {/* ── HEADER ── */}
         <motion.div
@@ -229,12 +234,8 @@ function TaskList() {
         </motion.div>
 
         {/* ── STATS ── */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-4"
-        >
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
+        <AnimatedPage className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <AnimatedCard className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Total Tasks</p>
@@ -246,9 +247,9 @@ function TaskList() {
                 <ClipboardList className="text-blue-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
+          <AnimatedCard className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Completed</p>
@@ -260,9 +261,9 @@ function TaskList() {
                 <CheckCircle2 className="text-green-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
+          <AnimatedCard className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">In Progress</p>
@@ -274,9 +275,9 @@ function TaskList() {
                 <Clock3 className="text-orange-500" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
+          <AnimatedCard className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Pending</p>
@@ -288,8 +289,8 @@ function TaskList() {
                 <AlertCircle className="text-red-500" />
               </div>
             </div>
-          </div>
-        </motion.div>
+          </AnimatedCard>
+        </AnimatedPage>
 
         {/* ── SEARCH & FILTER ── */}
         <motion.div
@@ -372,7 +373,7 @@ function TaskList() {
                       </tr>
                     </thead>
 
-                    <tbody>
+                    <AnimatedTableBody>
                       {taskData.length > 0 && paginated.length === 0 ? (
                         <tr>
                           <td colSpan={hasActions ? 7 : 6} className="py-16 text-center text-gray-400">
@@ -381,7 +382,7 @@ function TaskList() {
                         </tr>
                       ) : (
                         paginated.map((task) => (
-                          <tr
+                          <AnimatedTableRow
                             key={task.id}
                             className="border-b border-slate-100 hover:bg-blue-50/40 transition-all duration-200"
                           >
@@ -481,10 +482,10 @@ function TaskList() {
                              </div>
                            </td>
                          )}
-                      </tr>
+                      </AnimatedTableRow>
                         ))
                       )}
-                    </tbody>
+                    </AnimatedTableBody>
                   </table>
                 </div>
 
@@ -652,7 +653,7 @@ function TaskList() {
             </div>
           </>
         )}
-      </div>
+      </AnimatedPage>
     </AdminLayout>
   );
 }

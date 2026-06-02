@@ -128,6 +128,13 @@ function Navbar({ setSidebarOpen }) {
 
         {/* Right */}
         <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-shrink-0">
+          {/* Mobile Search Icon */}
+          <button
+            onClick={() => setIsGlobalSearchOpen(true)}
+            className="lg:hidden bg-slate-100 hover:bg-slate-200 transition-all p-2 md:p-3 rounded-xl cursor-pointer"
+          >
+            <Search size={18} className="text-slate-700" />
+          </button>
 
 
           {/* Notification */}
@@ -162,7 +169,7 @@ function Navbar({ setSidebarOpen }) {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="fixed top-16 left-3 right-3 sm:absolute sm:top-auto sm:left-auto sm:right-0 sm:mt-2 sm:w-96 bg-white rounded-3xl shadow-xl border border-gray-100 py-3 z-50 overflow-hidden"
+                    className="absolute -right-[70px] sm:right-0 mt-2 w-[300px] sm:w-96 bg-white rounded-3xl shadow-xl border border-gray-100 py-3 z-50 overflow-hidden"
                   >
                     <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
                       <h3 className="font-bold text-slate-800 text-sm flex items-center gap-1.5">
@@ -326,17 +333,6 @@ function Navbar({ setSidebarOpen }) {
               </p>
             </div>
           </Link>
-        </div>
-      </div>
-
-      {/* Mobile Search - Bottom */}
-      <div className="lg:hidden px-3 sm:px-4 md:px-6 pb-3">
-        <div 
-          onClick={() => setIsGlobalSearchOpen(true)}
-          className="flex items-center bg-slate-100 px-4 py-3 rounded-2xl cursor-pointer hover:bg-slate-200 transition-colors"
-        >
-          <Search size={18} className="text-gray-400 flex-shrink-0" />
-          <span className="ml-3 text-sm text-gray-500">Search here...</span>
         </div>
       </div>
 

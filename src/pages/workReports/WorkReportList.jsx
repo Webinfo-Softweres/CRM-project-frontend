@@ -28,6 +28,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { usePermissions } from "../../hooks/usePermissions";
 
+import AnimatedPage from "../../components/animations/AnimatedPage";
+import AnimatedCard from "../../components/animations/AnimatedCard";
+import AnimatedTableBody from "../../components/animations/AnimatedTableBody";
+import AnimatedTableRow from "../../components/animations/AnimatedTableRow";
+
 function WorkReportList() {
   const dispatch = useDispatch();
   const { can } = usePermissions();
@@ -192,7 +197,7 @@ function WorkReportList() {
         )}
       </AnimatePresence>
 
-      <div className="space-y-5 md:space-y-6 flex-1 flex flex-col">
+      <AnimatedPage className="space-y-5 md:space-y-6 flex-1 flex flex-col">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <h1 className="text-2xl md:text-3xl font-bold text-slate-800">
@@ -215,8 +220,8 @@ function WorkReportList() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+        <AnimatedPage className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Total Reports</p>
@@ -230,9 +235,9 @@ function WorkReportList() {
                 <ClipboardCheck className="text-blue-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Active Staff</p>
@@ -246,9 +251,9 @@ function WorkReportList() {
                 <Users className="text-green-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Total Hours</p>
@@ -262,9 +267,9 @@ function WorkReportList() {
                 <Clock3 className="text-orange-600" />
               </div>
             </div>
-          </div>
+          </AnimatedCard>
 
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
+          <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-slate-100 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 text-sm">Pending Reports</p>
@@ -278,8 +283,8 @@ function WorkReportList() {
                 <FileText className="text-red-600" />
               </div>
             </div>
-          </div>
-        </div>
+          </AnimatedCard>
+        </AnimatedPage>
 
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-4 md:p-5 flex flex-col xl:flex-row gap-4 xl:items-center xl:justify-between">
           <div className="flex items-center bg-slate-100 rounded-2xl px-4 py-3 w-full xl:max-w-md">
@@ -372,11 +377,11 @@ function WorkReportList() {
                       </tr>
                     </thead>
 
-                    <tbody>
+                    <AnimatedTableBody>
                       {paginatedData.map((report) => {
                         const name = report.staff || getUserName(report.user_id);
                         return (
-                          <tr
+                          <AnimatedTableRow
                             key={report.id}
                             className="border-b border-slate-100 hover:bg-blue-50/40 transition-all duration-200"
                           >
@@ -444,10 +449,10 @@ function WorkReportList() {
                                 </div>
                               </td>
                             )}
-                          </tr>
+                          </AnimatedTableRow>
                         );
                       })}
-                    </tbody>
+                    </AnimatedTableBody>
                   </table>
                 </div>
 
@@ -585,7 +590,7 @@ function WorkReportList() {
           </>
         )}
 
-      </div>
+      </AnimatedPage>
     </AdminLayout>
   );
 }
