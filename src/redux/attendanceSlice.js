@@ -7,7 +7,9 @@ export const fetchTodayAttendance = createAsyncThunk(
     try {
       return await fetchTodayAttendanceApi();
     } catch (error) {
-      return rejectWithValue(error.response?.data?.detail || "Failed to fetch today's attendance");
+      const detail = error.response?.data?.detail;
+      const errorMessage = Array.isArray(detail) ? detail[0]?.msg : (typeof detail === 'string' ? detail : "Failed to fetch today's attendance");
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -18,7 +20,9 @@ export const fetchMonthAttendance = createAsyncThunk(
     try {
       return await fetchMonthAttendanceApi(year, month);
     } catch (error) {
-      return rejectWithValue(error.response?.data?.detail || "Failed to fetch monthly attendance");
+      const detail = error.response?.data?.detail;
+      const errorMessage = Array.isArray(detail) ? detail[0]?.msg : (typeof detail === 'string' ? detail : "Failed to fetch monthly attendance");
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -26,14 +30,13 @@ export const fetchMonthAttendance = createAsyncThunk(
 const initialState = {
   todayData: {
     status: "",
-    total_punches: 0,
+    date: "",
+    total_users: 0,
     attendance: []
   },
   monthData: {
     status: "",
-    year: null,
-    month: null,
-    total_punches: 0,
+    total_users: 0,
     attendance: []
   },
   todayLoading: false,

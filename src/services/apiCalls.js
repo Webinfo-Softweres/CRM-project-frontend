@@ -395,13 +395,14 @@ export const fetchActivityLogsApi = async (skip = 0, limit = 100, search = "") =
   return res.data;
 };
 
-export const fetchTodayAttendanceApi = async () => {
-  const res = await API.get(`${ENDPOINTS.ATTENDANCE}today`);
+export const fetchTodayAttendanceApi = async (date) => {
+  const dateStr = date || new Date().toISOString().split("T")[0];
+  const res = await API.get(`${ENDPOINTS.ATTENDANCE}daily-summary?attendance_date=${dateStr}`);
   return res.data;
 };
 
 export const fetchMonthAttendanceApi = async (year, month) => {
-  const res = await API.get(`${ENDPOINTS.ATTENDANCE}month?year=${year}&month=${month}`);
+  const res = await API.get(`${ENDPOINTS.ATTENDANCE}monthly-summary?year=${year}&month=${month}`);
   return res.data;
 };
 
