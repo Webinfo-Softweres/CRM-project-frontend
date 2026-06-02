@@ -128,13 +128,7 @@ function Navbar({ setSidebarOpen }) {
 
         {/* Right */}
         <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-shrink-0">
-          {/* Search Mobile */}
-          <button 
-            onClick={() => setIsGlobalSearchOpen(true)}
-            className="lg:hidden bg-slate-100 hover:bg-slate-200 transition-all p-2 rounded-xl"
-          >
-            <Search size={18} className="text-slate-700" />
-          </button>
+
 
           {/* Notification */}
           {can("notifications:read") && (
