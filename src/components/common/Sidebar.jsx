@@ -134,9 +134,11 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
         className="fixed left-0 top-0 w-72 h-screen bg-linear-to-b from-slate-900 to-slate-800 text-white flex flex-col shadow-2xl z-50"
       >
         {/* Top */}
-        <div className="px-6 py-6 border-b border-slate-700 flex items-center justify-center gap-3">
+        <div className="px-6 py-6 border-b border-slate-700 flex items-center justify-center pr-12 lg:pr-6 gap-3">
           <Zap size={28} className="text-blue-400 fill-blue-400/20" />
           <h1 className="text-2xl font-bold tracking-wide">ZYVERA</h1>
+
+
 
           {/* Mobile Close */}
           {!isDesktop && (
