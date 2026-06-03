@@ -319,7 +319,7 @@ function Navbar({ setSidebarOpen }) {
           {/* User */}
           <Link
             to="/profile"
-            className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 hover:-translate-y-0.5 shadow-sm hover:shadow transition-all duration-200 px-2 md:px-3 py-2 rounded-2xl cursor-pointer"
+            className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 hover:-translate-y-0.5 shadow-sm hover:shadow transition-all duration-200 p-2 xl:px-3 xl:py-2 rounded-full xl:rounded-2xl cursor-pointer"
           >
             <UserCircle2 size={32} className="text-blue-600 flex-shrink-0" />
 
