@@ -52,10 +52,26 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
     }
   };
 
-  const [openMenu, setOpenMenu] = useState("");
-
   const isPathActive = (path) =>
     location.pathname === path || location.pathname.startsWith(`${path}/`);
+
+  const [openMenu, setOpenMenu] = useState(() => {
+    return sidebarMenu.find((item) => {
+      if (!item.children) return false;
+      return isPathActive(item.path) || item.children.some((child) => isPathActive(child.path));
+    })?.title || "";
+  });
+
+  useEffect(() => {
+    const active = sidebarMenu.find((item) => {
+      if (!item.children) return false;
+      return isPathActive(item.path) || item.children.some((child) => isPathActive(child.path));
+    })?.title;
+    
+    if (active) {
+      setOpenMenu(active);
+    }
+  }, [location.pathname]);
 
   // Detect Screen
   useEffect(() => {
@@ -96,18 +112,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
     setOpenMenu(openMenu === title ? "" : title);
   };
 
-  const activeMenuTitle = sidebarMenu.find((item) => {
-    if (!item.children) {
-      return false;
-    }
-
-    return (
-      isPathActive(item.path) ||
-      item.children.some((child) => isPathActive(child.path))
-    );
-  })?.title;
-
-  const visibleOpenMenu = activeMenuTitle || openMenu;
+  const visibleOpenMenu = openMenu;
 
   return (
     <>
@@ -199,8 +204,10 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
                   <Link
                     to={item.path}
                     className="flex items-center gap-4 w-full"
-                    onClick={() => {
-                      if (!isDesktop) {
+                    onClick={(e) => {
+                      if (item.children) {
+                        e.preventDefault();
+                      } else if (!isDesktop) {
                         setSidebarOpen(false);
                       }
                     }}
