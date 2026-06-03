@@ -130,7 +130,7 @@ export function formatStaffLine(staffBundle, fallbackName = null) {
   return [name, role, department].filter(Boolean).join(" · ");
 }
 
-export function buildProjectTimeline(context) {
+export function buildProjectTimeline(context, options = {}) {
   const {
     customer,
     enquiry,
@@ -140,6 +140,8 @@ export function buildProjectTimeline(context) {
     createdBy,
     approvedBy,
   } = context;
+
+  const { canReadQuotations = true } = options;
 
   const events = [];
 
@@ -172,7 +174,10 @@ export function buildProjectTimeline(context) {
   if (quotation?.created_at) {
     const creatorLine = formatStaffLine(createdBy);
     const approverLine = formatStaffLine(approvedBy);
-    let description = `₹${Number(quotation.amount).toLocaleString("en-IN")} — ${quotation.description}`;
+    
+    let description = canReadQuotations
+      ? `₹${Number(quotation.amount).toLocaleString("en-IN")} — ${quotation.description}`
+      : `${quotation.description}`;
     if (creatorLine) {
       description += `. Created by ${creatorLine}`;
     }

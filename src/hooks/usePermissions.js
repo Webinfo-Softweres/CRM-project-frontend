@@ -87,23 +87,23 @@ const ROLE_PERMISSIONS = {
     "status_logs:read"
   ],
   Staff: [
-    "customers:read",
-    "enquiries:read",
-    "quotations:create",
-    "quotations:read",
+    // "customers:read",
+    // "enquiries:read",
+    // "quotations:create",
+    // "quotations:read",
     "projects:read",
     "tasks:read",
-    "tasks:update",
+    // "tasks:update",
     "reports:create",
     "reports:read",
     "reports:update",
-    "feedback:create",
-    "feedback:read",
-    "notifications:create",
+    // "feedback:create",
+    // "feedback:read",
+    // "notifications:create",
     "notifications:read",
-    "notifications:update",
-    "notifications:delete",
-    "status_logs:read"
+    // "notifications:update",
+    // "notifications:delete",
+    // "status_logs:read"
   ]
 };
 

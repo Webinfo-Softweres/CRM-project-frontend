@@ -55,10 +55,10 @@ export const sidebarMenu = [
         permission: "tasks:read",
       },
 
-      {
-        title: "My Tasks",
-        path: "/my-tasks",
-      },
+      // {
+      //   title: "My Tasks",
+      //   path: "/my-tasks",
+      // },
     ],
   },
 

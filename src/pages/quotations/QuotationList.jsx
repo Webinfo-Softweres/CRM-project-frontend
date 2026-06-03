@@ -4,6 +4,7 @@ import Pagination from "../../components/common/Pagination";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AdminLayout from "../../layouts/AdminLayout";
+import Tooltip from "../../components/ui/Tooltip";
 
 
 // Format date only
@@ -41,6 +42,7 @@ import {
   Trash2,
   Info,
   ChevronDown,
+  Eye,
 } from "lucide-react";
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -67,7 +69,7 @@ function QuotationList() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { can } = usePermissions();
-  const hasActions = can("quotations:update") || can("quotations:delete");
+  const hasActions = true; // Details view is always accessible
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -423,7 +425,7 @@ function QuotationList() {
                             <FileText size={18} />
                           </div>
                           <div className="min-w-0">
-                            <h3 className="font-semibold text-slate-800 text-sm">
+                            <h3 className="font-semibold text-slate-800 text-sm block">
                               #{quote.id}
                             </h3>
                             <div className="flex items-center gap-1 mt-0.5">
@@ -511,6 +513,13 @@ function QuotationList() {
                       {hasActions && (
                         <td className="p-4">
                           <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => navigate(`/quotations/${quote.id}`)}
+                              className="w-9 h-9 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 flex items-center justify-center transition-all duration-200"
+                              title="View Details"
+                            >
+                              <Eye size={15} />
+                            </button>
                             {can("quotations:update") && (
                               <button
                                 onClick={() => navigate(`/quotations/edit/${quote.id}`)}
@@ -590,7 +599,7 @@ function QuotationList() {
                     <FileText size={20} />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-semibold text-slate-800">
+                    <h3 className="font-semibold text-slate-800 block">
                       #{quote.id}
                     </h3>
                     <div className="flex items-center gap-1">
@@ -598,12 +607,12 @@ function QuotationList() {
                         {quote.description || "-"}
                       </p>
                       {quote.description && quote.description.length > 20 && (
-                        <span title={quote.description} className="flex shrink-0">
+                        <Tooltip text={quote.description}>
                           <Info
                             size={13}
                             className="text-blue-400 hover:text-blue-600 cursor-pointer transition-colors"
                           />
-                        </span>
+                        </Tooltip>
                       )}
                     </div>
                   </div>
@@ -675,6 +684,13 @@ function QuotationList() {
               </div>
 
               <div className="mt-5 flex gap-3">
+                <button
+                  onClick={() => navigate(`/quotations/${quote.id}`)}
+                  className="flex-1 h-11 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 flex items-center justify-center gap-2 transition-all duration-200"
+                >
+                  <Eye size={16} />
+                  View
+                </button>
                 {can("quotations:update") && (
                   <button
                     onClick={() => navigate(`/quotations/edit/${quote.id}`)}

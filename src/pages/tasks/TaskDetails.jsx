@@ -24,6 +24,7 @@ import { fetchTaskById, clearCurrentTask } from "../../redux/taskSlice";
 import { fetchProjects } from "../../redux/projectSlice";
 import { fetchDepartments } from "../../redux/departmentSlice";
 import { fetchUsers } from "../../redux/userSlice";
+import { usePermissions } from "../../hooks/usePermissions";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const formatDate = (dateString) => {
@@ -74,6 +75,7 @@ function DetailGroup({ title, icon: Icon, iconClass, children }) {
 function TaskDetails() {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const { can } = usePermissions();
 
   const { currentTask: task, currentTaskLoading, currentTaskError } =
     useSelector((state) => state.tasks);
@@ -210,13 +212,15 @@ function TaskDetails() {
               </div>
             </div>
 
-            <Link
-              to={`/tasks/edit/${task.id}`}
-              className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl text-sm font-medium transition-all"
-            >
-              <Pencil size={16} />
-              Edit Task
-            </Link>
+            {can("tasks:update") && (
+              <Link
+                to={`/tasks/edit/${task.id}`}
+                className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl text-sm font-medium transition-all"
+              >
+                <Pencil size={16} />
+                Edit Task
+              </Link>
+            )}
           </div>
         </motion.div>
 

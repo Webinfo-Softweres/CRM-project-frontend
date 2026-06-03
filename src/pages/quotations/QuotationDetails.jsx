@@ -4,26 +4,35 @@ import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 
 import AdminLayout from "../../layouts/AdminLayout";
+import StatusBadge from "../../components/ui/StatusBadge";
+import AnimatedPage from "../../components/animations/AnimatedPage";
+import AnimatedCard from "../../components/animations/AnimatedCard";
 
 import {
   ArrowLeft,
   CalendarDays,
   Clock,
-  Clock3,
   FileText,
-  User2,
-  AlertTriangle,
+  IndianRupee,
+  User,
+  ClipboardList,
   Pencil,
+  AlertTriangle,
 } from "lucide-react";
 
-import { fetchWorkReports } from "../../redux/workReportSlice";
+import { fetchQuotations } from "../../redux/quotationSlice";
+import { fetchEnquiries } from "../../redux/enquirySlice";
+import { fetchCustomers } from "../../redux/customerSlice";
 import { fetchUsers } from "../../redux/userSlice";
 import { fetchDepartments } from "../../redux/departmentSlice";
+import { fetchRoles } from "../../redux/roleSlice";
+
 import { usePermissions } from "../../hooks/usePermissions";
+import { getStaffNameFromState } from "../../utils/projectHelpers";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const formatDate = (dateString) => {
-  if (!dateString) return "-";
+  if (!dateString) return "—";
   return new Date(dateString).toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
@@ -46,7 +55,7 @@ function InfoRow({ label, value }) {
     <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4 py-3.5 border-b border-gray-100 last:border-0">
       <dt className="text-sm text-gray-500 sm:w-44 shrink-0">{label}</dt>
       <dd className="text-sm font-semibold text-slate-800 flex-1 whitespace-pre-wrap">
-        {value ?? "-"}
+        {value ?? "—"}
       </dd>
     </div>
   );
@@ -54,7 +63,7 @@ function InfoRow({ label, value }) {
 
 function DetailGroup({ title, icon: Icon, iconClass, children }) {
   return (
-    <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+    <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
         <div className={`p-2.5 rounded-xl ${iconClass}`}>
           <Icon size={18} />
@@ -62,65 +71,71 @@ function DetailGroup({ title, icon: Icon, iconClass, children }) {
         <h2 className="text-lg font-bold text-slate-800">{title}</h2>
       </div>
       <dl className="px-6 py-2">{children}</dl>
-    </div>
+    </AnimatedCard>
   );
 }
 
-// ── WorkReportDetails Page ────────────────────────────────────────────────────
-function WorkReportDetails() {
+// ── QuotationDetails Page ────────────────────────────────────────────────────
+function QuotationDetails() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { can } = usePermissions();
 
-  const { items: reports, loading: currentReportLoading, error: currentReportError } =
-    useSelector((state) => state.workReports);
+  const { items: quotations, loading: quotationsLoading } = useSelector((state) => state.quotations);
+  const { items: enquiries, loading: enquiriesLoading } = useSelector((state) => state.enquiries);
+  const { items: customers, loading: customersLoading } = useSelector((state) => state.customers);
   const { items: users, loading: usersLoading } = useSelector((state) => state.users);
   const { items: departments, loading: departmentsLoading } = useSelector((state) => state.departments);
+  const { items: roles, loading: rolesLoading } = useSelector((state) => state.roles);
 
   useEffect(() => {
-    if (reports.length === 0) {
-      dispatch(fetchWorkReports());
-    }
-    if (users.length === 0) {
-      dispatch(fetchUsers());
-    }
-    if (departments.length === 0) {
-      dispatch(fetchDepartments());
-    }
-  }, [dispatch, reports.length, users.length, departments.length]);
+    if (quotations.length === 0) dispatch(fetchQuotations());
+    if (enquiries.length === 0) dispatch(fetchEnquiries());
+    if (customers.length === 0) dispatch(fetchCustomers());
+    if (users.length === 0) dispatch(fetchUsers());
+    if (departments.length === 0) dispatch(fetchDepartments());
+    if (roles.length === 0) dispatch(fetchRoles());
+  }, [dispatch, quotations.length, enquiries.length, customers.length, users.length, departments.length, roles.length]);
 
-  const report = reports.find((r) => String(r.id) === String(id));
-  const isLoading = currentReportLoading || usersLoading || departmentsLoading;
+  const isLoading =
+    quotationsLoading ||
+    enquiriesLoading ||
+    customersLoading ||
+    usersLoading ||
+    departmentsLoading ||
+    rolesLoading;
+
+  const quote = quotations.find((q) => String(q.id) === String(id));
 
   // ── Loading ────────────────────────────────────────────────────────────────
-  if (isLoading && !report) {
+  if (isLoading && !quote) {
     return (
       <AdminLayout>
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-16 flex flex-col items-center justify-center">
           <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" />
-          <p className="text-gray-500 font-medium">Loading report details...</p>
+          <p className="text-gray-500 font-medium">Loading quotation details...</p>
         </div>
       </AdminLayout>
     );
   }
 
   // ── Error / Not found ──────────────────────────────────────────────────────
-  if (currentReportError || (!isLoading && !report)) {
+  if (!isLoading && !quote) {
     return (
       <AdminLayout>
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-16 flex flex-col items-center justify-center text-center">
           <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-4">
             <AlertTriangle size={28} className="text-red-500" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-800">Report not found</h2>
+          <h2 className="text-2xl font-bold text-slate-800">Quotation not found</h2>
           <p className="text-gray-500 mt-2">
-            {currentReportError || "The work report you are looking for does not exist."}
+            The quotation you are looking for does not exist.
           </p>
           <Link
-            to="/work-reports"
+            to="/quotations"
             className="mt-6 bg-blue-600 text-white px-6 py-3 rounded-2xl font-medium"
           >
-            Back to Work Reports
+            Back to Quotations
           </Link>
         </div>
       </AdminLayout>
@@ -128,28 +143,41 @@ function WorkReportDetails() {
   }
 
   // ── Resolved relationships ─────────────────────────────────────────────────
-  const assignedUser = users.find((u) => String(u.id) === String(report.user_id));
-  
-  const staffName = assignedUser
-    ? (assignedUser.name || assignedUser.email)
-    : "Loading or not found";
+  const enquiry = enquiries.find((e) => String(e.id) === String(quote.enquiry_id));
+  const customer = enquiry ? customers.find((c) => String(c.id) === String(enquiry.customer_id)) : null;
 
-  const departmentName = assignedUser?.department_id 
-    ? departments.find(d => String(d.id) === String(assignedUser.department_id))?.name || "Not assigned"
-    : "-";
+  const creatorName = getStaffNameFromState(quote.created_by, users);
+  const approverName = getStaffNameFromState(quote.approved_by, users);
+  
+  const formattedAmount = quote
+    ? `₹${Number(quote.amount).toLocaleString("en-IN")}`
+    : "—";
 
   const timeline = [
     {
       date: "Created",
-      title: "Report created",
-      description: formatDate(report.created_at) + " at " + formatTime(report.created_at),
+      title: "Quotation generated",
+      description: formatDate(quote.created_at) + " at " + formatTime(quote.created_at),
       color: "bg-blue-600",
+    },
+    {
+      date: "Status",
+      title: "Current status",
+      description: quote.status || "Draft",
+      color:
+        quote.status === "Approved"
+          ? "bg-green-500"
+          : quote.status === "Confirmed"
+          ? "bg-blue-500"
+          : quote.status === "Rejected"
+          ? "bg-red-500"
+          : "bg-orange-500",
     }
   ];
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <AnimatedPage className="space-y-6">
         {/* ── Header ── */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -159,7 +187,7 @@ function WorkReportDetails() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-start gap-4">
               <Link
-                to="/work-reports"
+                to="/quotations"
                 className="bg-slate-100 hover:bg-slate-200 p-3 rounded-2xl shrink-0 transition-all"
               >
                 <ArrowLeft size={20} />
@@ -167,24 +195,29 @@ function WorkReportDetails() {
 
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm text-gray-400">Report #{report.id}</span>
+                  <span className="text-sm text-gray-400">Quotation #{quote.id}</span>
+                  <StatusBadge status={quote.status} />
                 </div>
 
                 <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mt-1">
-                  Daily Work Report
+                  Quotation Details
                 </h1>
-
-                <p className="text-gray-500 mt-1 text-sm">Submitted by {staffName}</p>
+                
+                {customer && (
+                  <p className="text-gray-500 mt-1 text-sm">
+                    For {customer.name} · {customer.company_name}
+                  </p>
+                )}
               </div>
             </div>
 
-            {can("reports:update") && (
+            {can("quotations:update") && (
               <Link
-                to={`/work-reports/edit/${report.id}`}
+                to={`/quotations/edit/${quote.id}`}
                 className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl text-sm font-medium transition-all"
               >
                 <Pencil size={16} />
-                Edit Report
+                Edit Quotation
               </Link>
             )}
           </div>
@@ -195,35 +228,50 @@ function WorkReportDetails() {
           {/* Left — detail groups */}
           <div className="xl:col-span-2 space-y-5">
             <DetailGroup
-              title="Report Details"
+              title="Quotation Information"
               icon={FileText}
-              iconClass="bg-blue-100 text-blue-600"
-            >
-              <InfoRow label="Summary" value={report.summary} />
-              <InfoRow
-                label="Total Hours"
-                value={`${report.total_hours} hrs`}
-              />
-              <InfoRow label="Report Date" value={formatDate(report.report_date)} />
-            </DetailGroup>
-
-            <DetailGroup
-              title="Staff Information"
-              icon={User2}
               iconClass="bg-purple-100 text-purple-600"
             >
-              <InfoRow label="Email" value={assignedUser?.email || "-"} />
-              <InfoRow label="Department" value={departmentName} />
+              <InfoRow label="Description" value={quote.description || "—"} />
+              {can("quotations:read") && (
+                <InfoRow label="Amount" value={formattedAmount} />
+              )}
+              <InfoRow label="Status" value={<StatusBadge status={quote.status} />} />
+              <InfoRow label="Created By" value={creatorName} />
+              <InfoRow label="Approved By" value={approverName} />
+              <InfoRow label="Created On" value={`${formatDate(quote.created_at)} at ${formatTime(quote.created_at)}`} />
             </DetailGroup>
+
+            {customer && (
+              <DetailGroup
+                title="Customer"
+                icon={User}
+                iconClass="bg-green-100 text-green-600"
+              >
+                <InfoRow label="Customer Name" value={customer.name} />
+                <InfoRow label="Business Name" value={customer.company_name} />
+                <InfoRow label="Phone" value={customer.phone} />
+                <InfoRow label="Email" value={customer.email} />
+              </DetailGroup>
+            )}
+
+            {enquiry && (
+              <DetailGroup
+                title="Related Enquiry"
+                icon={ClipboardList}
+                iconClass="bg-orange-100 text-orange-600"
+              >
+                <InfoRow label="Enquiry ID" value={`#${enquiry.id}`} />
+                <InfoRow label="Source" value={enquiry.source} />
+                <InfoRow label="Service Type" value={enquiry.service_required} />
+                <InfoRow label="Requirement" value={enquiry.description} />
+              </DetailGroup>
+            )}
           </div>
 
           {/* Right — timeline sidebar */}
           <div className="xl:col-span-1">
-            <motion.div
-              initial={{ opacity: 0, x: 12 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sticky top-6"
-            >
+            <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sticky top-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2.5 rounded-xl bg-slate-100 text-slate-600">
                   <Clock size={18} />
@@ -261,12 +309,26 @@ function WorkReportDetails() {
                   ))}
                 </ul>
               </div>
-            </motion.div>
+              
+              {can("quotations:read") && (
+                <div className="mt-8 pt-6 border-t border-gray-100">
+                  <div className="bg-indigo-50 rounded-2xl p-4 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-gray-500 font-medium">Total Amount</p>
+                      <p className="text-lg font-bold text-indigo-700 mt-0.5">{formattedAmount}</p>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
+                      <IndianRupee size={20} />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </AnimatedCard>
           </div>
         </div>
-      </div>
+      </AnimatedPage>
     </AdminLayout>
   );
 }
 
-export default WorkReportDetails;
+export default QuotationDetails;

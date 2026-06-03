@@ -18,6 +18,7 @@ import { fetchEnquiries } from "../../redux/enquirySlice";
 import { fetchUsers } from "../../redux/userSlice";
 import { fetchRoles } from "../../redux/roleSlice";
 import { fetchDepartments } from "../../redux/departmentSlice";
+import { usePermissions } from "../../hooks/usePermissions";
 
 import {
   ArrowLeft,
@@ -108,6 +109,7 @@ const timelineColors = {
 function ProjectDetails() {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const { can } = usePermissions();
 
   const { items: projects, loading: projectsLoading } = useSelector((state) => state.projects);
   const { items: customers, loading: customersLoading } = useSelector((state) => state.customers);
@@ -176,7 +178,9 @@ function ProjectDetails() {
   const { project, customer, quotation, enquiry, assignedStaff, createdBy, approvedBy } =
     context;
 
-  const timeline = buildProjectTimeline(context);
+  const timeline = buildProjectTimeline(context, {
+    canReadQuotations: can("quotations:read"),
+  });
 
   const formattedAmount = quotation
     ? `₹${Number(quotation.amount).toLocaleString("en-IN")}`
@@ -214,13 +218,15 @@ function ProjectDetails() {
                 )}
               </div>
             </div>
-            <Link
-              to={`/projects/edit/${project.id}`}
-              className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl text-sm font-medium transition-all"
-            >
-              <Pencil size={16} />
-              Edit Project
-            </Link>
+            {can("projects:update") && (
+              <Link
+                to={`/projects/edit/${project.id}`}
+                className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl text-sm font-medium transition-all"
+              >
+                <Pencil size={16} />
+                Edit Project
+              </Link>
+            )}
           </div>
         </motion.div>
 
@@ -268,7 +274,9 @@ function ProjectDetails() {
                 icon={FileText}
                 iconClass="bg-purple-100 text-purple-600"
               >
-                <InfoRow label="Amount" value={formattedAmount} />
+                {can("quotations:read") && (
+                  <InfoRow label="Amount" value={formattedAmount} />
+                )}
                 <InfoRow
                   label="Created By"
                   value={<StaffValue staffBundle={createdBy} />}

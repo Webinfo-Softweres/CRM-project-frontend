@@ -29,7 +29,7 @@ const SEARCHABLE_ITEMS = [
   { id: "add_project", title: "Add Project", desc: "Create a new project", icon: Plus, path: "/projects/create", category: "Actions" },
   
   { id: "tasks", title: "Tasks", desc: "Manage team tasks", icon: CheckSquare, path: "/tasks", category: "Pages" },
-  { id: "my_tasks", title: "My Tasks", desc: "View tasks assigned to me", icon: ListTodo, path: "/my-tasks", category: "Pages" },
+  // { id: "my_tasks", title: "My Tasks", desc: "View tasks assigned to me", icon: ListTodo, path: "/my-tasks", category: "Pages" },
   { id: "add_task", title: "Add Task", desc: "Create a new task", icon: Plus, path: "/tasks/create", category: "Actions" },
   
   { id: "customers", title: "Customers", desc: "Manage client database", icon: Users, path: "/customers", category: "Pages" },

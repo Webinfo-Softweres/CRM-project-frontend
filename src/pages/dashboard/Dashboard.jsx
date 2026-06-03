@@ -267,13 +267,15 @@ function Dashboard() {
         </div>
 
         {/* KPI strip */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className={`grid grid-cols-1 md:grid-cols-2 ${
+          can("quotations:read") ? "lg:grid-cols-4" : "lg:grid-cols-3"
+        } gap-4`}>
           {[
             { label: "Projects",   value: totalProjects,   sub: `${ongoingProjects} ongoing`,          icon: FolderKanban, bg: "bg-blue-100",   ic: "text-blue-600",   path: "/projects"   },
             { label: "Tasks",      value: totalTasks,      sub: `${completedTasks} completed`,         icon: ClipboardList, bg: "bg-orange-100", ic: "text-orange-600", path: "/tasks"      },
             { label: "Customers",  value: totalCustomers,  sub: `${activeCustomers} active`,           icon: Users,        bg: "bg-green-100",  ic: "text-green-600",  path: "/customers"  },
-            { label: "Revenue",    value: `₹${(totalRevenue / 100000).toFixed(1)}L`, sub: `${approvedQuotations} approved quotes`, icon: IndianRupee, bg: "bg-indigo-100", ic: "text-indigo-600", path: "/quotations" },
-          ].map((item, i) => (
+            can("quotations:read") ? { label: "Revenue",    value: `₹${(totalRevenue / 100000).toFixed(1)}L`, sub: `${approvedQuotations} approved quotes`, icon: IndianRupee, bg: "bg-indigo-100", ic: "text-indigo-600", path: "/quotations" } : null,
+          ].filter(Boolean).map((item, i) => (
             <motion.div
               key={item.label}
               initial={{ opacity: 0, y: 16 }}

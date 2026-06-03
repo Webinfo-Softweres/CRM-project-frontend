@@ -22,6 +22,7 @@ import EnquiryForm from "../pages/enquiries/EnquiryForm";
 import QuotationList from "../pages/quotations/QuotationList";
 import CreateQuotation from "../pages/quotations/CreateQuotation";
 import QuotationForm from "../pages/quotations/QuotationForm";
+import QuotationDetails from "../pages/quotations/QuotationDetails";
 
 // PROJECTS
 import ProjectList from "../pages/projects/ProjectList";
@@ -84,6 +85,7 @@ function AppRoutes() {
         <Route path="/quotations" element={<ProtectedRoute permission="quotations:read"><QuotationList /></ProtectedRoute>} />
         <Route path="/quotations/create" element={<ProtectedRoute permission="quotations:create"><CreateQuotation /></ProtectedRoute>} />
         <Route path="/quotations/edit/:id" element={<ProtectedRoute permission="quotations:update"><QuotationForm /></ProtectedRoute>} />
+        <Route path="/quotations/:id" element={<ProtectedRoute permission="quotations:read"><QuotationDetails /></ProtectedRoute>} />
         {/* PROJECTS */}
         <Route path="/projects" element={<ProtectedRoute permission="projects:read"><ProjectList /></ProtectedRoute>} />
         <Route path="/projects/create" element={<ProtectedRoute permission="projects:create"><CreateProject /></ProtectedRoute>} />
@@ -94,7 +96,7 @@ function AppRoutes() {
         <Route path="/tasks/create" element={<ProtectedRoute permission="tasks:create"><TaskForm /></ProtectedRoute>} />
         <Route path="/tasks/edit/:id" element={<ProtectedRoute permission="tasks:update"><TaskForm /></ProtectedRoute>} />
         <Route path="/tasks/details/:id" element={<ProtectedRoute permission="tasks:read"><TaskDetails /></ProtectedRoute>} />
-        <Route path="/my-tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
+        {/* <Route path="/my-tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} /> */}
         <Route path="/work-reports" element={<ProtectedRoute permission="reports:read"><WorkReportList /></ProtectedRoute>} />
         <Route path="/work-reports/create" element={<ProtectedRoute permission="reports:create"><WorkReportForm /></ProtectedRoute>} />
         <Route path="/work-reports/edit/:id" element={<ProtectedRoute permission="reports:update"><WorkReportForm /></ProtectedRoute>} />
