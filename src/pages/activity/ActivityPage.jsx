@@ -218,9 +218,10 @@ function ActivityPage() {
         </div>
 
         {/* Loading / Error States */}
-        {loading && activityList.length === 0 ? (
-          <div className="flex items-center justify-center py-12 flex-1">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+        {loading ? (
+          <div className="bg-white rounded-3xl border border-gray-100 p-16 flex flex-col items-center justify-center shadow-sm animate-pulse">
+            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="text-gray-500 font-medium">Loading activities...</p>
           </div>
         ) : error && activityList.length === 0 ? (
           <div className="bg-red-50 text-red-700 p-6 rounded-3xl text-center border border-red-100 my-4">
