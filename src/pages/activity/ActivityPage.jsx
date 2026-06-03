@@ -36,8 +36,12 @@ const getModuleLabel = (module) => {
   if (m === "project") return "Project";
   if (m === "feedback") return "Feedback";
   if (m === "report" || m === "reports") return "Work Report";
-  if (m === "user" || m === "staff") return "Staff";
+  if (m === "user" || m === "staff" || m === "auth") return "Staff";
   return module.charAt(0).toUpperCase() + module.slice(1);
+};
+
+const getModuleColor = (module) => {
+  return "bg-slate-100 text-slate-700";
 };
 
 function ActivityPage() {
@@ -92,12 +96,7 @@ function ActivityPage() {
 
   // Status badge colors
   const getStatusColor = (status) => {
-    const s = String(status).toLowerCase();
-    if (s === "new" || s === "create" || s === "add") return "bg-blue-100 text-blue-700";
-    if (s === "approved" || s === "completed" || s === "read" || s === "success" || s === "view") return "bg-green-100 text-green-700";
-    if (s === "rejected" || s === "delete" || s === "remove") return "bg-red-100 text-red-700";
-    if (s === "pending" || s === "update" || s === "edit") return "bg-orange-100 text-orange-700";
-    return "bg-gray-100 text-gray-700";
+    return "bg-slate-100 text-slate-700";
   };
 
   return (
@@ -255,6 +254,9 @@ function ActivityPage() {
                         Changed By
                       </th>
                       <th className="text-left p-5 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        IP Address
+                      </th>
+                      <th className="text-left p-5 text-xs font-semibold uppercase tracking-wider text-slate-500">
                         Date & Time
                       </th>
                     </tr>
@@ -268,7 +270,7 @@ function ActivityPage() {
                       >
                         {/* Module */}
                         <td className="p-5">
-                          <span className="bg-slate-100 text-slate-700 px-4 py-2 rounded-xl text-xs font-medium inline-block">
+                          <span className={`${getModuleColor(activity.module)} px-4 py-2 rounded-xl text-xs font-medium inline-block`}>
                             {getModuleLabel(activity.module)}
                           </span>
                         </td>
@@ -299,6 +301,11 @@ function ActivityPage() {
                           </div>
                         </td>
 
+                        {/* IP Address */}
+                        <td className="p-5 text-sm text-slate-600 font-medium">
+                          {activity.ip_address}
+                        </td>
+
                         {/* Date & Time */}
                         <td className="p-5 text-sm text-gray-600">
                           {activity.changed_at}
@@ -326,10 +333,10 @@ function ActivityPage() {
                 >
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      <span className={`${getModuleColor(activity.module)} px-3 py-1 rounded-xl text-xs font-medium inline-block mb-2`}>
                         {getModuleLabel(activity.module)}
-                      </p>
-                      <h3 className="mt-2 text-lg font-semibold text-slate-800">
+                      </span>
+                      <h3 className="text-lg font-semibold text-slate-800">
                         Record #{activity.record_id}
                       </h3>
                     </div>
@@ -348,12 +355,15 @@ function ActivityPage() {
                         <p className="text-gray-500 text-xs">Changed By</p>
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-3 text-gray-500 text-xs">
-                      <Clock3 size={16} />
-                      {activity.changed_at}
+                    <div className="flex items-center gap-3 mt-2 text-gray-500">
+                      <Clock3 size={15} />
+                      <span className="text-sm">{activity.changed_at}</span>
                     </div>
+                    <div className="flex items-center gap-3 mt-2 text-gray-500">
+                      <Activity size={15} />
+                      <span className="text-sm">{activity.ip_address}</span>
                     </div>
+                  </div>
                   </AnimatedCard>
                 ))}
               {paginatedData.length === 0 && (

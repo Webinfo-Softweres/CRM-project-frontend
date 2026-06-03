@@ -2,7 +2,6 @@
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { fetchActivityLogsApi } from "../services/apiCalls";
-import { activityData } from "../data/activityData";
 
 const getErrorMessage = (error, fallbackMessage) => {
   const data = error.response?.data;
@@ -68,8 +67,8 @@ const formatTimestamp = (timestamp) => {
 const activitySlice = createSlice({
   name: "activity",
   initialState: {
-    items: activityData, // Initialize with fallback mock data
-    total: activityData.length,
+    items: [], 
+    total: 0,
     page: 1,
     limit: 100,
     pages: 1,
@@ -92,8 +91,8 @@ const activitySlice = createSlice({
           : (action.payload?.items ?? []);
 
         if (apiItems.length === 0) {
-          state.items = activityData; // Keep mock logs fallback if empty
-          state.total = activityData.length;
+          state.items = []; 
+          state.total = 0;
           state.pages = 1;
         } else {
           state.items = apiItems.map((log) => ({
@@ -106,6 +105,7 @@ const activitySlice = createSlice({
             method: log.action?.method,
             endpoint: log.endpoint,
             actionName: log.action?.name,
+            ip_address: log.ip_address || log.client_ip || log.ip || "-",
           }));
           state.total = action.payload?.total ?? apiItems.length;
           state.page = action.payload?.page ?? 1;
