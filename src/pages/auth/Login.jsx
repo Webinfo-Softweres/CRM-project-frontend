@@ -183,17 +183,17 @@ function Login() {
         <div className="w-full h-full bg-blue-600 rounded-[2.5rem] relative overflow-hidden flex flex-col items-center justify-center text-white text-center p-12 shadow-2xl">
           
           {/* Background Hexagons/Shapes */}
-            <div className="absolute top-10 left-10 w-32 h-32 border-2 border-white/10 rounded-3xl rotate-12 backdrop-blur-3xl"></div>
-            <div className="absolute bottom-20 right-10 w-48 h-48 border-2 border-white/10 rounded-[3rem] -rotate-12 backdrop-blur-3xl"></div>
-            <div className="absolute -top-10 -right-10 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-indigo-500/30 rounded-full blur-3xl"></div>
+            <div className="absolute top-10 left-10 w-32 h-32 border-2 border-white/10 rounded-3xl rotate-12 bg-white/5"></div>
+            <div className="absolute bottom-20 right-10 w-48 h-48 border-2 border-white/10 rounded-[3rem] -rotate-12 bg-white/5"></div>
+            <div className="absolute -top-10 -right-10 w-64 h-64 bg-white/5 rounded-full"></div>
+            <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-indigo-500/20 rounded-full"></div>
 
             {/* Dashboard Mockup Representation */}
-            <motion.div 
+            <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="relative w-full max-w-[450px] aspect-[4/3] bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-12 z-10"
+              className="relative w-full max-w-[450px] aspect-[4/3] bg-white/10 border border-white/20 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-12 z-10 will-change-transform"
             >
               {/* Browser Header */}
               <div className="h-8 bg-white/20 border-b border-white/10 flex items-center px-4 gap-1.5 shrink-0">
@@ -245,11 +245,11 @@ function Login() {
             </motion.div>
 
             {/* Floating Logo Badge */}
-            <motion.div 
-              initial={{ scale: 0, opacity: 0 }}
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-              className="absolute right-12 top-[40%] w-16 h-16 bg-white rounded-2xl shadow-xl flex items-center justify-center z-20"
+              transition={{ delay: 0.5, duration: 0.3 }}
+              className="absolute right-12 top-[40%] w-16 h-16 bg-white rounded-2xl shadow-xl flex items-center justify-center z-20 will-change-transform"
             >
                <Zap className="text-blue-600 fill-blue-600/20" size={32} />
             </motion.div>

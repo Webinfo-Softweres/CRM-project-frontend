@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { fetchUsers } from "../../redux/userSlice";
 import { fetchUnreadNotifications, markNotificationRead } from "../../redux/notificationSlice";
+import { logoutUser } from "../../redux/authSlice";
 import { rolesData } from "../../data/rolesData";
 import { usePermissions } from "../../hooks/usePermissions";
 import GlobalSearchModal from "./GlobalSearchModal";
@@ -100,8 +101,13 @@ function Navbar({ setSidebarOpen }) {
     }
   };
 
-  const handleLogout = () => {
-    Cookies.remove("access_token");
+  const handleLogout = async () => {
+    setShowProfile(false);
+    try {
+      await dispatch(logoutUser()).unwrap();
+    } catch {
+      // Navigate even if API fails
+    }
     navigate("/login");
   };
 
