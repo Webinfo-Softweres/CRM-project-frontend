@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
-import { Bell, Search, UserCircle2, Settings, Menu, Shield } from "lucide-react";
+import { Bell, Search, UserCircle2, Settings, Menu, Shield, LogOut, User, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { fetchUsers } from "../../redux/userSlice";
@@ -23,6 +23,7 @@ function Navbar({ setSidebarOpen }) {
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState(false);
 
   // Keyboard shortcut Ctrl+K / Cmd+K
@@ -45,6 +46,13 @@ function Navbar({ setSidebarOpen }) {
   const toggleSettings = () => {
     setShowSettings(!showSettings);
     setShowNotifications(false);
+    setShowProfile(false);
+  };
+
+  const toggleProfile = () => {
+    setShowProfile(!showProfile);
+    setShowNotifications(false);
+    setShowSettings(false);
   };
 
   useEffect(() => {
@@ -90,6 +98,21 @@ function Navbar({ setSidebarOpen }) {
     } catch (err) {
       console.error("Failed to mark notification as read", err);
     }
+  };
+
+  const handleLogout = () => {
+    Cookies.remove("access_token");
+    navigate("/login");
+  };
+
+  const getInitials = (name) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   return (
@@ -316,23 +339,97 @@ function Navbar({ setSidebarOpen }) {
             </div>
           )}
 
-          {/* User */}
-          <Link
-            to="/profile"
-            className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 hover:-translate-y-0.5 shadow-sm hover:shadow transition-all duration-200 p-2 xl:px-3 xl:py-2 rounded-full xl:rounded-2xl cursor-pointer"
-          >
-            <UserCircle2 size={32} className="text-blue-600 flex-shrink-0" />
+          {/* User Profile Dropdown */}
+          <div className="relative">
+            <button
+              onClick={toggleProfile}
+              className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 transition-all p-1.5 md:pr-3 rounded-xl cursor-pointer group"
+            >
+              {/* Avatar */}
+              <div className="relative">
+                {loggedInUser?.avatar ? (
+                  <img
+                    src={loggedInUser.avatar}
+                    alt={loggedInUser.name}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold">
+                    {getInitials(loggedInUser?.name)}
+                  </div>
+                )}
+              </div>
 
-            <div className="hidden xl:block">
-              <h3 className="text-sm font-semibold text-slate-800">
-                {loggedInUser ? loggedInUser.name : "Admin User"}
-              </h3>
+              {/* User info - hidden on mobile */}
+              <div className="hidden md:block text-left">
+                <h3 className="text-sm font-semibold text-slate-700">
+                  {loggedInUser ? loggedInUser.name : "Admin User"}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  {loggedInUser ? getRoleName(loggedInUser.role_id) : "Administrator"}
+                </p>
+              </div>
 
-              <p className="text-xs text-gray-500">
-                {loggedInUser ? getRoleName(loggedInUser.role_id) : "Administrator"}
-              </p>
-            </div>
-          </Link>
+              {/* Dropdown chevron */}
+              <ChevronDown
+                size={14}
+                className={`text-slate-500 transition-transform duration-200 hidden md:block ${showProfile ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            {/* Dropdown Overlay */}
+            {showProfile && (
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setShowProfile(false)}
+              />
+            )}
+
+            {/* Profile Dropdown */}
+            <AnimatePresence>
+              {showProfile && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 overflow-hidden"
+                >
+                  {/* Header */}
+                  <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-slate-50 to-white">
+                    <p className="text-xs text-gray-500 font-medium">Signed in as</p>
+                    <p className="text-sm font-semibold text-slate-800 truncate">
+                      {loggedInUser?.email || "admin@example.com"}
+                    </p>
+                  </div>
+
+                  {/* Menu Items */}
+                  <div className="py-1">
+                    <Link
+                      to="/profile"
+                      onClick={() => setShowProfile(false)}
+                      className="px-4 py-2.5 flex items-center gap-3 hover:bg-slate-50 transition-colors text-slate-700 hover:text-blue-600 cursor-pointer"
+                    >
+                      <div className="p-1.5 rounded-lg bg-blue-100 text-blue-600 shrink-0">
+                        <User size={16} />
+                      </div>
+                      <span className="text-sm font-medium">My Profile</span>
+                    </Link>
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-red-50 transition-colors text-slate-700 hover:text-red-600 cursor-pointer"
+                    >
+                      <div className="p-1.5 rounded-lg bg-red-100 text-red-600 shrink-0">
+                        <LogOut size={16} />
+                      </div>
+                      <span className="text-sm font-medium">Sign Out</span>
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
 
