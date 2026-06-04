@@ -37,9 +37,11 @@ function WorkReportList() {
   const dispatch = useDispatch();
   const { can } = usePermissions();
   const hasActions = true;
-  const { items: reports, loading, error, deleteLoading } = useSelector((state) => state.workReports);
-  const users = useSelector((state) => state.users.items);
-  const usersLoading = useSelector((state) => state.users.loading);
+  const { items: reports, loading, error, deleteLoading, lastFetched } = useSelector((state) => state.workReports);
+  const usersData = useSelector((state) => state.users);
+  const users = usersData.items;
+  const usersLoading = usersData.loading;
+  const usersLastFetched = usersData.lastFetched;
 
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -49,10 +51,12 @@ function WorkReportList() {
   const [deleteTargetId, setDeleteTargetId] = useState(null);
 
   useEffect(() => {
-    if (users.length === 0) {
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isUsersStale = !usersLastFetched || (Date.now() - usersLastFetched > CACHE_DURATION);
+    if (users.length === 0 || isUsersStale) {
       dispatch(fetchUsers());
     }
-  }, [dispatch, users.length]);
+  }, [dispatch, users.length, usersLastFetched]);
 
   // Debounce search input
   useEffect(() => {
@@ -68,8 +72,12 @@ function WorkReportList() {
     const params = {};
     if (searchQuery) params.search = searchQuery;
     if (reportDate) params.report_date = reportDate;
-    dispatch(fetchWorkReports(params));
-  }, [dispatch, searchQuery, reportDate]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isReportsStale = !lastFetched || (Date.now() - lastFetched > CACHE_DURATION);
+    if (reports.length === 0 || isReportsStale || searchQuery || reportDate) {
+      dispatch(fetchWorkReports(params));
+    }
+  }, [dispatch, searchQuery, reportDate, lastFetched, reports.length]);
 
   const getUserName = (userId) => {
     const user = users.find((u) => u.id === userId);

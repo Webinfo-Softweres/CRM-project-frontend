@@ -93,6 +93,7 @@ const enquirySlice = createSlice({
     createError: null,
     updateError: null,
     deleteError: null,
+    lastFetched: null,
   },
 
   reducers: {
@@ -113,6 +114,7 @@ const enquirySlice = createSlice({
 
       .addCase(fetchEnquiries.fulfilled, (state, action) => {
         state.loading = false;
+        state.lastFetched = Date.now();
 
         state.items = Array.isArray(action.payload)
           ? action.payload

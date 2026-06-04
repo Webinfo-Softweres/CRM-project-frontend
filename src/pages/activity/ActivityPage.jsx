@@ -46,7 +46,7 @@ const getModuleColor = (module) => {
 
 function ActivityPage() {
   const dispatch = useDispatch();
-  const { items: activityList, loading, error } = useSelector((state) => state.activity);
+  const { items: activityList, loading, error, lastFetched: activityLastFetched } = useSelector((state) => state.activity);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -66,8 +66,13 @@ function ActivityPage() {
   useEffect(() => {
     const params = { skip: 0, limit: 250 };
     if (searchQuery) params.search = searchQuery;
-    dispatch(fetchActivityLogs(params));
-  }, [dispatch, searchQuery]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isActivityStale = !activityLastFetched || (Date.now() - activityLastFetched > CACHE_DURATION);
+
+    if (searchQuery || activityList.length === 0 || isActivityStale) {
+      dispatch(fetchActivityLogs(params));
+    }
+  }, [dispatch, searchQuery, activityList.length, activityLastFetched]);
 
   // Filter activities locally for module and action dropdowns
   const filteredActivities = activityList.filter((item) => {

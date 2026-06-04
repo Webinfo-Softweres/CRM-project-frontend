@@ -43,6 +43,8 @@ const initialState = {
   monthLoading: false,
   todayError: null,
   monthError: null,
+  todayLastFetched: null,
+  monthLastFetched: null,
 };
 
 const attendanceSlice = createSlice({
@@ -63,6 +65,7 @@ const attendanceSlice = createSlice({
       })
       .addCase(fetchTodayAttendance.fulfilled, (state, action) => {
         state.todayLoading = false;
+        state.todayLastFetched = Date.now();
         state.todayData = action.payload;
       })
       .addCase(fetchTodayAttendance.rejected, (state, action) => {
@@ -78,6 +81,7 @@ const attendanceSlice = createSlice({
       })
       .addCase(fetchMonthAttendance.fulfilled, (state, action) => {
         state.monthLoading = false;
+        state.monthLastFetched = Date.now();
         state.monthData = action.payload;
       })
       .addCase(fetchMonthAttendance.rejected, (state, action) => {

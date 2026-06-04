@@ -36,8 +36,8 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 import { usePermissions } from "../../hooks/usePermissions";
-
-import { fetchDashboardCountsApi } from "../../services/apiCalls";
+import { fetchDashboardCounts } from "../../redux/dashboardSlice";
+import { fetchEnquiries } from "../../redux/enquirySlice";
 
 // ── Shared tooltip style ──────────────────────────────────────────────────────
 const tooltipStyle = {
@@ -102,95 +102,100 @@ function Dashboard() {
   const navigate = useNavigate();
   const { can } = usePermissions();
   const [leadsView, setLeadsView] = useState("day");
-  const [dashboardData, setDashboardData] = useState(null);
 
-  // Selectors (kept for parts that may still rely on store state, if any, but they will be empty if not fetched)
-  const projects = useSelector((state) => state.projects.items) || [];
-  const tasks = useSelector((state) => state.tasks.items) || [];
-  const customers = useSelector((state) => state.customers.items) || [];
-  const enquiries = useSelector((state) => state.enquiries.items) || [];
-  const quotations = useSelector((state) => state.quotations.items) || [];
-  const users = useSelector((state) => state.users.items) || [];
-  const feedback = useSelector((state) => state.feedback.items) || [];
-  const activity = useSelector((state) => state.activity.items) || [];
+  // Dashboard data from Redux
+  const dashboardData = useSelector((state) => state.dashboard);
+
+  // Selectors for leads data
+  const enquiriesData = useSelector((state) => state.enquiries);
+  const enquiries = enquiriesData.items || [];
+
+  // Loading state (both must finish loading for initial load)
+  const loading = dashboardData.loading || enquiriesData.loading;
 
   useEffect(() => {
-    const loadDashboardCounts = async () => {
-      try {
-        const data = await fetchDashboardCountsApi();
-        if (data && data.status === "success") {
-          setDashboardData(data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch dashboard counts:", error);
-      }
-    };
-    loadDashboardCounts();
-  }, [dispatch]);
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+    // Dashboard counts caching
+    const isDashboardStale = !dashboardData.lastFetched || (Date.now() - dashboardData.lastFetched > CACHE_DURATION);
+    const isDashboardEmpty = dashboardData.counts.total_staff === 0 && dashboardData.counts.total_projects === 0;
+
+    if (isDashboardStale || isDashboardEmpty) {
+      dispatch(fetchDashboardCounts());
+    }
+
+    // Enquiries caching
+    const isEnquiriesStale = !enquiriesData.lastFetched || (Date.now() - enquiriesData.lastFetched > CACHE_DURATION);
+    const isEnquiriesEmpty = enquiries.length === 0;
+
+    if (isEnquiriesStale || isEnquiriesEmpty) {
+      dispatch(fetchEnquiries());
+    }
+  }, [dispatch, dashboardData.lastFetched, dashboardData.counts.total_staff, dashboardData.counts.total_projects, enquiriesData.lastFetched, enquiries.length]);
 
   // ── Derived stats ───────────────────────────────────────────────────────────
-  const totalProjects   = dashboardData ? dashboardData.counts.total_projects : 0;
-  const ongoingProjects = dashboardData ? dashboardData.project_status_counts.ongoing : 0;
-  const completedProjects = dashboardData ? dashboardData.project_status_counts.completed : 0;
-  const holdProjects    = dashboardData ? dashboardData.project_status_counts.hold : 0;
+  const totalProjects   = dashboardData.counts.total_projects;
+  const ongoingProjects = dashboardData.projectStatusCounts.ongoing;
+  const completedProjects = dashboardData.projectStatusCounts.completed;
+  const holdProjects    = dashboardData.projectStatusCounts.hold;
 
-  const totalTasks      = dashboardData ? dashboardData.counts.total_tasks : 0;
-  const completedTasks  = dashboardData ? dashboardData.task_status_counts.completed : 0;
-  const pendingTasks    = dashboardData ? dashboardData.task_status_counts.pending : 0;
-  const inProgressTasks = dashboardData ? dashboardData.task_status_counts.in_progress : 0;
+  const totalTasks      = dashboardData.counts.total_tasks;
+  const completedTasks  = dashboardData.taskStatusCounts.completed;
+  const pendingTasks    = dashboardData.taskStatusCounts.pending;
+  const inProgressTasks = dashboardData.taskStatusCounts.in_progress;
 
-  const totalCustomers  = dashboardData ? dashboardData.counts.total_customers : 0;
-  const activeCustomers = dashboardData ? dashboardData.counts.total_customers : 0; // Using total as API doesn't split
+  const totalCustomers  = dashboardData.counts.total_customers;
+  const activeCustomers = dashboardData.counts.total_customers; // Using total as API doesn't split
 
-  const totalEnquiries  = dashboardData ? (dashboardData.enquiry_status_counts.new + dashboardData.enquiry_status_counts.follow_up + dashboardData.enquiry_status_counts.closed) : 0;
-  const newEnquiries    = dashboardData ? dashboardData.enquiry_status_counts.new : 0;
+  const totalEnquiries  = dashboardData.enquiryStatusCounts.new + dashboardData.enquiryStatusCounts.follow_up + dashboardData.enquiryStatusCounts.closed;
+  const newEnquiries    = dashboardData.enquiryStatusCounts.new;
 
   // Since we aren't fetching quotations, this will be 0.
   const approvedQuotations = 0;
   const totalRevenue = 0;
 
-  const totalStaff   = dashboardData ? dashboardData.counts.total_staff : 0;
-  const presentStaff = dashboardData ? dashboardData.counts.present_staff : 0;
-  const absentStaff  = dashboardData ? dashboardData.counts.absent_staff : 0;
+  const totalStaff   = dashboardData.counts.total_staff;
+  const presentStaff = dashboardData.counts.present_staff;
+  const absentStaff  = dashboardData.counts.absent_staff;
 
   // ── Chart data ──────────────────────────────────────────────────────────────
 
   // Task status — pie
-  const taskPieData = dashboardData ? [
-    { name: "Completed",   value: dashboardData.task_status_counts.completed,  color: "#22c55e" },
-    { name: "In Progress", value: dashboardData.task_status_counts.in_progress, color: "#3b82f6" },
-    { name: "Pending",     value: dashboardData.task_status_counts.pending,    color: "#f59e0b" },
-    { name: "Rejected",    value: dashboardData.task_status_counts.rejected,   color: "#ef4444" },
-  ].filter((d) => d.value > 0) : [];
+  const taskPieData = [
+    { name: "Completed",   value: dashboardData.taskStatusCounts.completed,  color: "#22c55e" },
+    { name: "In Progress", value: dashboardData.taskStatusCounts.in_progress, color: "#3b82f6" },
+    { name: "Pending",     value: dashboardData.taskStatusCounts.pending,    color: "#f59e0b" },
+    { name: "Rejected",    value: dashboardData.taskStatusCounts.rejected,   color: "#ef4444" },
+  ].filter((d) => d.value > 0);
 
   // Project status — pie
-  const projectPieData = dashboardData ? [
-    { name: "Ongoing",   value: dashboardData.project_status_counts.ongoing,   color: "#6366f1" },
-    { name: "Completed", value: dashboardData.project_status_counts.completed, color: "#22c55e" },
-    { name: "Hold",      value: dashboardData.project_status_counts.hold,      color: "#f59e0b" },
-  ].filter((d) => d.value > 0) : [];
+  const projectPieData = [
+    { name: "Ongoing",   value: dashboardData.projectStatusCounts.ongoing,   color: "#6366f1" },
+    { name: "Completed", value: dashboardData.projectStatusCounts.completed, color: "#22c55e" },
+    { name: "Hold",      value: dashboardData.projectStatusCounts.hold,      color: "#f59e0b" },
+  ].filter((d) => d.value > 0);
 
   // Enquiry status — bar
-  const enquiryStatusData = dashboardData ? [
-    { status: "New", count: dashboardData.enquiry_status_counts.new },
-    { status: "Follow Up", count: dashboardData.enquiry_status_counts.follow_up },
-    { status: "Closed", count: dashboardData.enquiry_status_counts.closed },
-  ] : [];
+  const enquiryStatusData = [
+    { status: "New", count: dashboardData.enquiryStatusCounts.new },
+    { status: "Follow Up", count: dashboardData.enquiryStatusCounts.follow_up },
+    { status: "Closed", count: dashboardData.enquiryStatusCounts.closed },
+  ];
 
   // Activity status — bar
-  const activityStatusData = dashboardData ? [
-    { status: "Create", count: dashboardData.activity_log_counts.create },
-    { status: "Read", count: dashboardData.activity_log_counts.read },
-    { status: "Update", count: dashboardData.activity_log_counts.update },
-    { status: "Delete", count: dashboardData.activity_log_counts.delete },
-  ].filter((d) => d.count > 0) : [];
+  const activityStatusData = [
+    { status: "Create", count: dashboardData.activityLogCounts.create },
+    { status: "Read", count: dashboardData.activityLogCounts.read },
+    { status: "Update", count: dashboardData.activityLogCounts.update },
+    { status: "Delete", count: dashboardData.activityLogCounts.delete },
+  ].filter((d) => d.count > 0);
 
   // Feedback rating — Bad (1-2), Good (3-4), Excellent (5)
-  const feedbackRatingData = dashboardData ? [
-    { label: "Bad",       count: dashboardData.feedback_rating_counts.bad, color: "#ef4444" },
-    { label: "Good",      count: dashboardData.feedback_rating_counts.good, color: "#f59e0b" },
-    { label: "Excellent", count: dashboardData.feedback_rating_counts.excellent, color: "#22c55e" },
-  ] : [];
+  const feedbackRatingData = [
+    { label: "Bad",       count: dashboardData.feedbackRatingCounts.bad, color: "#ef4444" },
+    { label: "Good",      count: dashboardData.feedbackRatingCounts.good, color: "#f59e0b" },
+    { label: "Excellent", count: dashboardData.feedbackRatingCounts.excellent, color: "#22c55e" },
+  ];
 
   // Staff attendance — radial
   const staffAttendanceData = [
@@ -199,11 +204,11 @@ function Dashboard() {
   ];
 
   // Staff performance
-  const staffPerformanceData = dashboardData ? dashboardData.staff_performance.map(u => ({
+  const staffPerformanceData = dashboardData.staffPerformance.map(u => ({
     name: u.staff_name,
     completed: u.completed_tasks,
     pending: u.pending_tasks
-  })) : [];
+  }));
 
   // Leads
   const getLeadsData = () => {
@@ -255,6 +260,19 @@ function Dashboard() {
       leads: counts[idx]
     }));
   };
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
+            <p className="text-gray-500 text-sm font-medium">Loading dashboard...</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>

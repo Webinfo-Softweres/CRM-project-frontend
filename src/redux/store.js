@@ -3,6 +3,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import activityReducer from "./activitySlice";
 import authReducer from "./authSlice";
 import customerReducer from "./customerSlice";
+import dashboardReducer from "./dashboardSlice";
 import departmentReducer from "./departmentSlice";
 import enquiryReducer from "./enquirySlice";
 import feedbackReducer from "./feedbackSlice";
@@ -21,6 +22,7 @@ export const store = configureStore({
     auth: authReducer,
     activity: activityReducer,
     customers: customerReducer,
+    dashboard: dashboardReducer,
     departments: departmentReducer,
     enquiries: enquiryReducer,
     feedback: feedbackReducer,

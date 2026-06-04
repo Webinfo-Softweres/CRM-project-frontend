@@ -90,6 +90,7 @@ const projectSlice = createSlice({
     updateError: null,
     deleteLoading: false,
     deleteError: null,
+    lastFetched: null,
   },
   reducers: {
     clearProjectError: (state) => {
@@ -107,6 +108,7 @@ const projectSlice = createSlice({
       })
       .addCase(fetchProjects.fulfilled, (state, action) => {
         state.loading = false;
+        state.lastFetched = Date.now();
         state.items = Array.isArray(action.payload)
           ? action.payload
           : (action.payload?.items ?? []);

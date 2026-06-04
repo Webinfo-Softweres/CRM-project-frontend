@@ -98,6 +98,7 @@ const taskSlice = createSlice({
     updateError: null,
     deleteLoading: false,
     deleteError: null,
+    lastFetched: null,
   },
   reducers: {
     clearTaskError: (state) => {
@@ -120,6 +121,7 @@ const taskSlice = createSlice({
       })
       .addCase(fetchTasks.fulfilled, (state, action) => {
         state.loading = false;
+        state.lastFetched = Date.now();
         state.items = Array.isArray(action.payload)
           ? action.payload
           : (action.payload?.items ?? []);

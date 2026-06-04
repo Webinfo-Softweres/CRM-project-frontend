@@ -74,18 +74,32 @@ function ProjectList() {
   const projects = useSelector((state) => state.projects.items);
   const projectsLoading = useSelector((state) => state.projects.loading);
   const deleteLoading = useSelector((state) => state.projects.deleteLoading);
+  const projectsLastFetched = useSelector((state) => state.projects.lastFetched);
   const customers = useSelector((state) => state.customers.items);
   const customersLoading = useSelector((state) => state.customers.loading);
+  const customersLastFetched = useSelector((state) => state.customers.lastFetched);
   const quotations = useSelector((state) => state.quotations.items);
   const quotationsLoading = useSelector((state) => state.quotations.loading);
+  const quotationsLastFetched = useSelector((state) => state.quotations.lastFetched);
 
   const isLoading = projectsLoading || customersLoading || quotationsLoading;
 
   useEffect(() => {
-    dispatch(fetchProjects());
-    dispatch(fetchCustomers());
-    dispatch(fetchQuotations());
-  }, [dispatch]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isProjectsStale = !projectsLastFetched || (Date.now() - projectsLastFetched > CACHE_DURATION);
+    const isCustomersStale = !customersLastFetched || (Date.now() - customersLastFetched > CACHE_DURATION);
+    const isQuotationsStale = !quotationsLastFetched || (Date.now() - quotationsLastFetched > CACHE_DURATION);
+
+    if (projects.length === 0 || isProjectsStale) {
+      dispatch(fetchProjects());
+    }
+    if (customers.length === 0 || isCustomersStale) {
+      dispatch(fetchCustomers());
+    }
+    if (quotations.length === 0 || isQuotationsStale) {
+      dispatch(fetchQuotations());
+    }
+  }, [dispatch, projects.length, customers.length, quotations.length, projectsLastFetched, customersLastFetched, quotationsLastFetched]);
 
   // Debounce search input
   useEffect(() => {
@@ -100,8 +114,13 @@ function ProjectList() {
   useEffect(() => {
     const params = {};
     if (searchQuery) params.search = searchQuery;
-    dispatch(fetchProjects(params));
-  }, [dispatch, searchQuery]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isProjectsStale = !projectsLastFetched || (Date.now() - projectsLastFetched > CACHE_DURATION);
+
+    if (searchQuery || projects.length === 0 || isProjectsStale) {
+      dispatch(fetchProjects(params));
+    }
+  }, [dispatch, searchQuery, projects.length, projectsLastFetched]);
 
   const getCustomerLabel = (customerId) => {
     const customer = customers.find((c) => c.id === customerId);

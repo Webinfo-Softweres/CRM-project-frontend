@@ -70,7 +70,7 @@ const modulePalette = [
 
 function PermissionList() {
   const dispatch = useDispatch();
-  const { items: permissions, loading, deleteLoading } = useSelector((state) => state.permissions);
+  const { items: permissions, loading, deleteLoading, lastFetched: permissionsLastFetched } = useSelector((state) => state.permissions);
   const { can } = usePermissions();
   const hasActions = can("roles:update") || can("roles:delete");
 
@@ -86,8 +86,12 @@ function PermissionList() {
   const uniqueActions = [...new Set(permissions.map((p) => p.action))].filter(Boolean);
 
   useEffect(() => {
-    dispatch(fetchPermissions());
-  }, [dispatch]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isPermissionsStale = !permissionsLastFetched || (Date.now() - permissionsLastFetched > CACHE_DURATION);
+    if (permissions.length === 0 || isPermissionsStale) {
+      dispatch(fetchPermissions());
+    }
+  }, [dispatch, permissions.length, permissionsLastFetched]);
 
   // Close dropdowns on outside click
   useEffect(() => {

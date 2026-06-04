@@ -40,9 +40,9 @@ function UsersList() {
   const dispatch = useDispatch();
   const { can } = usePermissions();
   const hasActions = can("users:update") || can("users:delete");
-  const { items: users, loading, error, deleteLoading } = useSelector((state) => state.users);
-  const { items: roles } = useSelector((state) => state.roles);
-  const { items: departments } = useSelector((state) => state.departments);
+  const { items: users, loading, error, deleteLoading, lastFetched: usersLastFetched } = useSelector((state) => state.users);
+  const { items: roles, lastFetched: rolesLastFetched } = useSelector((state) => state.roles);
+  const { items: departments, lastFetched: departmentsLastFetched } = useSelector((state) => state.departments);
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteTargetId, setDeleteTargetId] = useState(null);
 
@@ -55,9 +55,17 @@ function UsersList() {
 
   // Fetch roles and departments once on mount
   useEffect(() => {
-    dispatch(fetchRoles());
-    dispatch(fetchDepartments());
-  }, [dispatch]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isRolesStale = !rolesLastFetched || (Date.now() - rolesLastFetched > CACHE_DURATION);
+    const isDepartmentsStale = !departmentsLastFetched || (Date.now() - departmentsLastFetched > CACHE_DURATION);
+
+    if (roles.length === 0 || isRolesStale) {
+      dispatch(fetchRoles());
+    }
+    if (departments.length === 0 || isDepartmentsStale) {
+      dispatch(fetchDepartments());
+    }
+  }, [dispatch, roles.length, departments.length, rolesLastFetched, departmentsLastFetched]);
 
   // Debounce search input
   useEffect(() => {
@@ -73,8 +81,13 @@ function UsersList() {
     const params = {
       search: searchQuery,
     };
-    dispatch(fetchUsers(params));
-  }, [dispatch, searchQuery]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isUsersStale = !usersLastFetched || (Date.now() - usersLastFetched > CACHE_DURATION);
+
+    if (users.length === 0 || isUsersStale || searchQuery) {
+      dispatch(fetchUsers(params));
+    }
+  }, [dispatch, searchQuery, users.length, usersLastFetched]);
 
   // Client-side filtering for role, department, status
   const filtered = users.filter((user) => {

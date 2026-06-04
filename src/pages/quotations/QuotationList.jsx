@@ -83,8 +83,9 @@ function QuotationList() {
     loading,
     error,
     deleteLoading,
+    lastFetched: quotationsLastFetched,
   } = useSelector((state) => state.quotations);
-  const { items: users } = useSelector((state) => state.users);
+  const { items: users, lastFetched: usersLastFetched } = useSelector((state) => state.users);
   const [deleteTargetId, setDeleteTargetId] = useState(null);
 
 
@@ -149,8 +150,12 @@ function QuotationList() {
 
   // Fetch users once on mount
   useEffect(() => {
-    dispatch(fetchUsers());
-  }, [dispatch]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isUsersStale = !usersLastFetched || (Date.now() - usersLastFetched > CACHE_DURATION);
+    if (users.length === 0 || isUsersStale) {
+      dispatch(fetchUsers());
+    }
+  }, [dispatch, users.length, usersLastFetched]);
 
   // Debounce search input
   useEffect(() => {
@@ -165,8 +170,13 @@ function QuotationList() {
   useEffect(() => {
     const params = {};
     if (searchQuery) params.search = searchQuery;
-    dispatch(fetchQuotations(params));
-  }, [dispatch, searchQuery]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isQuotationsStale = !quotationsLastFetched || (Date.now() - quotationsLastFetched > CACHE_DURATION);
+
+    if (searchQuery || quotations.length === 0 || isQuotationsStale) {
+      dispatch(fetchQuotations(params));
+    }
+  }, [dispatch, searchQuery, quotations.length, quotationsLastFetched]);
 
   const openDeleteModal = (id) => {
     setDeleteTargetId(id);

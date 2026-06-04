@@ -133,6 +133,7 @@ const quotationSlice = createSlice({
     updateError: null,
     deleteLoading: false,
     deleteError: null,
+    lastFetched: null,
   },
   reducers: {
     clearQuotationError: (state) => {
@@ -149,6 +150,7 @@ const quotationSlice = createSlice({
       })
       .addCase(fetchQuotations.fulfilled, (state, action) => {
         state.loading = false;
+        state.lastFetched = Date.now();
         state.items = action.payload;
       })
       .addCase(fetchQuotations.rejected, (state, action) => {

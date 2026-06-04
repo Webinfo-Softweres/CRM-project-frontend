@@ -72,22 +72,27 @@ function WorkReportDetails() {
   const dispatch = useDispatch();
   const { can } = usePermissions();
 
-  const { items: reports, loading: currentReportLoading, error: currentReportError } =
+  const { items: reports, loading: currentReportLoading, error: currentReportError, lastFetched: reportsLastFetched } =
     useSelector((state) => state.workReports);
-  const { items: users, loading: usersLoading } = useSelector((state) => state.users);
-  const { items: departments, loading: departmentsLoading } = useSelector((state) => state.departments);
+  const { items: users, loading: usersLoading, lastFetched: usersLastFetched } = useSelector((state) => state.users);
+  const { items: departments, loading: departmentsLoading, lastFetched: departmentsLastFetched } = useSelector((state) => state.departments);
 
   useEffect(() => {
-    if (reports.length === 0) {
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isReportsStale = !reportsLastFetched || (Date.now() - reportsLastFetched > CACHE_DURATION);
+    const isUsersStale = !usersLastFetched || (Date.now() - usersLastFetched > CACHE_DURATION);
+    const isDepartmentsStale = !departmentsLastFetched || (Date.now() - departmentsLastFetched > CACHE_DURATION);
+
+    if (reports.length === 0 || isReportsStale) {
       dispatch(fetchWorkReports());
     }
-    if (users.length === 0) {
+    if (users.length === 0 || isUsersStale) {
       dispatch(fetchUsers());
     }
-    if (departments.length === 0) {
+    if (departments.length === 0 || isDepartmentsStale) {
       dispatch(fetchDepartments());
     }
-  }, [dispatch, reports.length, users.length, departments.length]);
+  }, [dispatch, reports.length, users.length, departments.length, reportsLastFetched, usersLastFetched, departmentsLastFetched]);
 
   const report = reports.find((r) => String(r.id) === String(id));
   const isLoading = currentReportLoading || usersLoading || departmentsLoading;

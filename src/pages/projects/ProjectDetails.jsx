@@ -111,23 +111,32 @@ function ProjectDetails() {
   const dispatch = useDispatch();
   const { can } = usePermissions();
 
-  const { items: projects, loading: projectsLoading } = useSelector((state) => state.projects);
-  const { items: customers, loading: customersLoading } = useSelector((state) => state.customers);
-  const { items: quotations, loading: quotationsLoading } = useSelector((state) => state.quotations);
-  const { items: enquiries, loading: enquiriesLoading } = useSelector((state) => state.enquiries);
-  const { items: users, loading: usersLoading } = useSelector((state) => state.users);
-  const { items: roles, loading: rolesLoading } = useSelector((state) => state.roles);
-  const { items: departments, loading: departmentsLoading } = useSelector((state) => state.departments);
+  const { items: projects, loading: projectsLoading, lastFetched: projectsLastFetched } = useSelector((state) => state.projects);
+  const { items: customers, loading: customersLoading, lastFetched: customersLastFetched } = useSelector((state) => state.customers);
+  const { items: quotations, loading: quotationsLoading, lastFetched: quotationsLastFetched } = useSelector((state) => state.quotations);
+  const { items: enquiries, loading: enquiriesLoading, lastFetched: enquiriesLastFetched } = useSelector((state) => state.enquiries);
+  const { items: users, loading: usersLoading, lastFetched: usersLastFetched } = useSelector((state) => state.users);
+  const { items: roles, loading: rolesLoading, lastFetched: rolesLastFetched } = useSelector((state) => state.roles);
+  const { items: departments, loading: departmentsLoading, lastFetched: departmentsLastFetched } = useSelector((state) => state.departments);
 
   useEffect(() => {
-    if (projects.length === 0) dispatch(fetchProjects());
-    if (customers.length === 0) dispatch(fetchCustomers());
-    if (quotations.length === 0) dispatch(fetchQuotations());
-    if (enquiries.length === 0) dispatch(fetchEnquiries());
-    if (users.length === 0) dispatch(fetchUsers());
-    if (roles.length === 0) dispatch(fetchRoles());
-    if (departments.length === 0) dispatch(fetchDepartments());
-  }, [dispatch, projects.length, customers.length, quotations.length, enquiries.length, users.length, roles.length, departments.length]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isProjectsStale = !projectsLastFetched || (Date.now() - projectsLastFetched > CACHE_DURATION);
+    const isCustomersStale = !customersLastFetched || (Date.now() - customersLastFetched > CACHE_DURATION);
+    const isQuotationsStale = !quotationsLastFetched || (Date.now() - quotationsLastFetched > CACHE_DURATION);
+    const isEnquiriesStale = !enquiriesLastFetched || (Date.now() - enquiriesLastFetched > CACHE_DURATION);
+    const isUsersStale = !usersLastFetched || (Date.now() - usersLastFetched > CACHE_DURATION);
+    const isRolesStale = !rolesLastFetched || (Date.now() - rolesLastFetched > CACHE_DURATION);
+    const isDepartmentsStale = !departmentsLastFetched || (Date.now() - departmentsLastFetched > CACHE_DURATION);
+
+    if (projects.length === 0 || isProjectsStale) dispatch(fetchProjects());
+    if (customers.length === 0 || isCustomersStale) dispatch(fetchCustomers());
+    if (quotations.length === 0 || isQuotationsStale) dispatch(fetchQuotations());
+    if (enquiries.length === 0 || isEnquiriesStale) dispatch(fetchEnquiries());
+    if (users.length === 0 || isUsersStale) dispatch(fetchUsers());
+    if (roles.length === 0 || isRolesStale) dispatch(fetchRoles());
+    if (departments.length === 0 || isDepartmentsStale) dispatch(fetchDepartments());
+  }, [dispatch, projects.length, customers.length, quotations.length, enquiries.length, users.length, roles.length, departments.length, projectsLastFetched, customersLastFetched, quotationsLastFetched, enquiriesLastFetched, usersLastFetched, rolesLastFetched, departmentsLastFetched]);
 
   const isLoading =
     projectsLoading ||

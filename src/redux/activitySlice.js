@@ -74,6 +74,7 @@ const activitySlice = createSlice({
     pages: 1,
     loading: false,
     error: null,
+    lastFetched: null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -85,6 +86,7 @@ const activitySlice = createSlice({
       .addCase(fetchActivityLogs.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
+        state.lastFetched = Date.now();
         
         const apiItems = Array.isArray(action.payload)
           ? action.payload

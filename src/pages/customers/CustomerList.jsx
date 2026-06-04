@@ -77,6 +77,7 @@ function CustomerList() {
     loading,
     error,
     deleteLoading,
+    lastFetched: customersLastFetched,
   } = useSelector((state) => state.customers);
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteTargetId, setDeleteTargetId] = useState(null);
@@ -99,8 +100,13 @@ function CustomerList() {
   useEffect(() => {
     const params = {};
     if (searchQuery) params.search = searchQuery;
-    dispatch(fetchCustomers(params));
-  }, [dispatch, searchQuery]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isCustomersStale = !customersLastFetched || (Date.now() - customersLastFetched > CACHE_DURATION);
+
+    if (searchQuery || customers.length === 0 || isCustomersStale) {
+      dispatch(fetchCustomers(params));
+    }
+  }, [dispatch, searchQuery, customers.length, customersLastFetched]);
 
   // Client-side filtering for status
   const filtered = customers.filter((c) => {

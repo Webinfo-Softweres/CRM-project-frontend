@@ -104,6 +104,8 @@ const notificationSlice = createSlice({
     updateError: null,
     deleteLoading: false,
     deleteError: null,
+    lastFetched: null,
+    unreadLastFetched: null,
   },
   reducers: {
     clearNotificationError: (state) => {
@@ -121,6 +123,7 @@ const notificationSlice = createSlice({
       })
       .addCase(fetchNotifications.fulfilled, (state, action) => {
         state.loading = false;
+        state.lastFetched = Date.now();
         state.items = action.payload;
       })
       .addCase(fetchNotifications.rejected, (state, action) => {
@@ -151,6 +154,7 @@ const notificationSlice = createSlice({
       })
       .addCase(fetchUnreadNotifications.fulfilled, (state, action) => {
         state.unreadLoading = false;
+        state.unreadLastFetched = Date.now();
         state.unreadItems = action.payload;
       })
       .addCase(fetchUnreadNotifications.rejected, (state) => {

@@ -40,16 +40,19 @@ function StaffForm() {
     createError,
     updateLoading,
     updateError,
+    lastFetched: usersLastFetched,
   } = useSelector((state) => state.users);
   const {
     items: roles,
     loading: rolesLoading,
     error: rolesError,
+    lastFetched: rolesLastFetched,
   } = useSelector((state) => state.roles);
   const {
     items: departments,
     loading: departmentsLoading,
     error: departmentsError,
+    lastFetched: departmentsLastFetched,
   } = useSelector((state) => state.departments);
 
   const [form, setForm] = useState({
@@ -71,12 +74,21 @@ function StaffForm() {
   const error = createError || updateError;
 
   useEffect(() => {
-    dispatch(fetchRoles());
-    dispatch(fetchDepartments());
-    if (isEdit && users.length === 0) {
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isRolesStale = !rolesLastFetched || (Date.now() - rolesLastFetched > CACHE_DURATION);
+    const isDepartmentsStale = !departmentsLastFetched || (Date.now() - departmentsLastFetched > CACHE_DURATION);
+    const isUsersStale = !usersLastFetched || (Date.now() - usersLastFetched > CACHE_DURATION);
+
+    if (roles.length === 0 || isRolesStale) {
+      dispatch(fetchRoles());
+    }
+    if (departments.length === 0 || isDepartmentsStale) {
+      dispatch(fetchDepartments());
+    }
+    if (isEdit && (users.length === 0 || isUsersStale)) {
       dispatch(fetchUsers());
     }
-  }, [dispatch, isEdit, users.length]);
+  }, [dispatch, isEdit, users.length, roles.length, departments.length, usersLastFetched, rolesLastFetched, departmentsLastFetched]);
 
   // Load user data when editing
   useEffect(() => {

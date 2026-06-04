@@ -76,6 +76,7 @@ const feedbackSlice = createSlice({
     updateError: null,
     deleteLoading: false,
     deleteError: null,
+    lastFetched: null,
   },
   reducers: {
     clearFeedbackError: (state) => {
@@ -93,6 +94,7 @@ const feedbackSlice = createSlice({
       })
       .addCase(fetchFeedback.fulfilled, (state, action) => {
         state.loading = false;
+        state.lastFetched = Date.now();
         state.items = action.payload;
       })
       .addCase(fetchFeedback.rejected, (state, action) => {

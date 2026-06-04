@@ -35,6 +35,7 @@ const departmentSlice = createSlice({
     items: [],
     loading: false,
     error: null,
+    lastFetched: null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -45,6 +46,7 @@ const departmentSlice = createSlice({
       })
       .addCase(fetchDepartments.fulfilled, (state, action) => {
         state.loading = false;
+        state.lastFetched = Date.now();
         state.items = action.payload;
       })
       .addCase(fetchDepartments.rejected, (state, action) => {

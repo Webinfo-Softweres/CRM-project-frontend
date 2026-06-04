@@ -68,8 +68,8 @@ function TaskList() {
   const { can } = usePermissions();
   const hasActions = can("tasks:read") || can("tasks:update") || can("tasks:delete");
 
-  const { items: taskData, loading, deleteLoading } = useSelector((state) => state.tasks);
-  const { items: usersData } = useSelector((state) => state.users);
+  const { items: taskData, loading, deleteLoading, lastFetched: tasksLastFetched } = useSelector((state) => state.tasks);
+  const { items: usersData, lastFetched: usersLastFetched } = useSelector((state) => state.users);
 
   const [search, setSearch] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -79,9 +79,17 @@ function TaskList() {
   const [deleteTargetTitle, setDeleteTargetTitle] = useState("");
 
   useEffect(() => {
-    dispatch(fetchTasks());
-    dispatch(fetchUsers());
-  }, [dispatch]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isTasksStale = !tasksLastFetched || (Date.now() - tasksLastFetched > CACHE_DURATION);
+    const isUsersStale = !usersLastFetched || (Date.now() - usersLastFetched > CACHE_DURATION);
+
+    if (taskData.length === 0 || isTasksStale) {
+      dispatch(fetchTasks());
+    }
+    if (usersData.length === 0 || isUsersStale) {
+      dispatch(fetchUsers());
+    }
+  }, [dispatch, taskData.length, usersData.length, tasksLastFetched, usersLastFetched]);
 
   // Debounce search input
   useEffect(() => {
@@ -96,8 +104,13 @@ function TaskList() {
   useEffect(() => {
     const params = {};
     if (searchQuery) params.search = searchQuery;
-    dispatch(fetchTasks(params));
-  }, [dispatch, searchQuery]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isTasksStale = !tasksLastFetched || (Date.now() - tasksLastFetched > CACHE_DURATION);
+
+    if (searchQuery || taskData.length === 0 || isTasksStale) {
+      dispatch(fetchTasks(params));
+    }
+  }, [dispatch, searchQuery, taskData.length, tasksLastFetched]);
 
   const getStaffName = (userId) => {
     const user = usersData.find((u) => u.id === userId);

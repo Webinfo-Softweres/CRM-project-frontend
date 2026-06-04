@@ -33,6 +33,7 @@ const roleSlice = createSlice({
     items: [],
     loading: false,
     error: null,
+    lastFetched: null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -43,6 +44,7 @@ const roleSlice = createSlice({
       })
       .addCase(fetchRoles.fulfilled, (state, action) => {
         state.loading = false;
+        state.lastFetched = Date.now();
         state.items = action.payload;
       })
       .addCase(fetchRoles.rejected, (state, action) => {

@@ -25,13 +25,13 @@ function EditProject() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { items: projects, loading: projectsLoading, updateLoading } = useSelector(
+  const { items: projects, loading: projectsLoading, updateLoading, lastFetched: projectsLastFetched } = useSelector(
     (state) => state.projects,
   );
-  const { items: customers, loading: customersLoading } = useSelector(
+  const { items: customers, loading: customersLoading, lastFetched: customersLastFetched } = useSelector(
     (state) => state.customers,
   );
-  const { items: quotations, loading: quotationsLoading } = useSelector(
+  const { items: quotations, loading: quotationsLoading, lastFetched: quotationsLastFetched } = useSelector(
     (state) => state.quotations,
   );
 
@@ -47,12 +47,21 @@ function EditProject() {
   });
 
   useEffect(() => {
-    dispatch(fetchCustomers());
-    dispatch(fetchQuotations());
-    if (projects.length === 0) {
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isProjectsStale = !projectsLastFetched || (Date.now() - projectsLastFetched > CACHE_DURATION);
+    const isCustomersStale = !customersLastFetched || (Date.now() - customersLastFetched > CACHE_DURATION);
+    const isQuotationsStale = !quotationsLastFetched || (Date.now() - quotationsLastFetched > CACHE_DURATION);
+
+    if (projects.length === 0 || isProjectsStale) {
       dispatch(fetchProjects());
     }
-  }, [dispatch, projects.length]);
+    if (customers.length === 0 || isCustomersStale) {
+      dispatch(fetchCustomers());
+    }
+    if (quotations.length === 0 || isQuotationsStale) {
+      dispatch(fetchQuotations());
+    }
+  }, [dispatch, projects.length, customers.length, quotations.length, projectsLastFetched, customersLastFetched, quotationsLastFetched]);
 
   // Load project details into form once retrieved
   useEffect(() => {

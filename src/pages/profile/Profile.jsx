@@ -30,6 +30,8 @@ function Profile() {
   // Fetch roles and departments from redux state to map IDs
   const roles = useSelector((state) => state.roles.items);
   const departments = useSelector((state) => state.departments.items);
+  const rolesLastFetched = useSelector((state) => state.roles.lastFetched);
+  const departmentsLastFetched = useSelector((state) => state.departments.lastFetched);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -37,8 +39,16 @@ function Profile() {
 
   useEffect(() => {
     // Load lookup data
-    dispatch(fetchRoles());
-    dispatch(fetchDepartments());
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isRolesStale = !rolesLastFetched || (Date.now() - rolesLastFetched > CACHE_DURATION);
+    const isDepartmentsStale = !departmentsLastFetched || (Date.now() - departmentsLastFetched > CACHE_DURATION);
+
+    if (roles.length === 0 || isRolesStale) {
+      dispatch(fetchRoles());
+    }
+    if (departments.length === 0 || isDepartmentsStale) {
+      dispatch(fetchDepartments());
+    }
 
     const verifyAndFetch = async () => {
       // Defer to avoid synchronous setState inside effect

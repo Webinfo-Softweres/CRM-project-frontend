@@ -51,10 +51,10 @@ function NotificationList() {
   const { can } = usePermissions();
   const showActions = can("notifications:read") || can("notifications:update") || can("notifications:delete");
 
-  const { items: notifications, loading, error, deleteLoading } = useSelector(
+  const { items: notifications, loading, error, deleteLoading, lastFetched: notificationsLastFetched } = useSelector(
     (state) => state.notifications
   );
-  const { items: users } = useSelector(
+  const { items: users, lastFetched: usersLastFetched } = useSelector(
     (state) => state.users
   );
 
@@ -64,9 +64,17 @@ function NotificationList() {
   const [deleteTargetId, setDeleteTargetId] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchNotifications());
-    dispatch(fetchUsers());
-  }, [dispatch]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isNotificationsStale = !notificationsLastFetched || (Date.now() - notificationsLastFetched > CACHE_DURATION);
+    const isUsersStale = !usersLastFetched || (Date.now() - usersLastFetched > CACHE_DURATION);
+
+    if (notifications.length === 0 || isNotificationsStale) {
+      dispatch(fetchNotifications());
+    }
+    if (users.length === 0 || isUsersStale) {
+      dispatch(fetchUsers());
+    }
+  }, [dispatch, notifications.length, users.length, notificationsLastFetched, usersLastFetched]);
 
   const openDeleteModal = (id) => setDeleteTargetId(id);
   const closeDeleteModal = () => setDeleteTargetId(null);

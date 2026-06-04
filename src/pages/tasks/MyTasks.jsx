@@ -45,10 +45,10 @@ const formatDate = (dateString) => {
 function MyTasks() {
   const dispatch = useDispatch();
 
-  const { items: allTasks, loading: tasksLoading } = useSelector(
+  const { items: allTasks, loading: tasksLoading, lastFetched: tasksLastFetched } = useSelector(
     (state) => state.tasks,
   );
-  const { items: users, loading: usersLoading } = useSelector(
+  const { items: users, loading: usersLoading, lastFetched: usersLastFetched } = useSelector(
     (state) => state.users,
   );
 
@@ -57,9 +57,17 @@ function MyTasks() {
   const [statusFilter, setStatusFilter] = useState("All");
 
   useEffect(() => {
-    dispatch(fetchTasks());
-    dispatch(fetchUsers());
-  }, [dispatch]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isTasksStale = !tasksLastFetched || (Date.now() - tasksLastFetched > CACHE_DURATION);
+    const isUsersStale = !usersLastFetched || (Date.now() - usersLastFetched > CACHE_DURATION);
+
+    if (allTasks.length === 0 || isTasksStale) {
+      dispatch(fetchTasks());
+    }
+    if (users.length === 0 || isUsersStale) {
+      dispatch(fetchUsers());
+    }
+  }, [dispatch, allTasks.length, users.length, tasksLastFetched, usersLastFetched]);
 
   // Debounce search input
   useEffect(() => {
@@ -73,8 +81,13 @@ function MyTasks() {
   useEffect(() => {
     const params = {};
     if (searchQuery) params.search = searchQuery;
-    dispatch(fetchTasks(params));
-  }, [dispatch, searchQuery]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isTasksStale = !tasksLastFetched || (Date.now() - tasksLastFetched > CACHE_DURATION);
+
+    if (searchQuery || allTasks.length === 0 || isTasksStale) {
+      dispatch(fetchTasks(params));
+    }
+  }, [dispatch, searchQuery, allTasks.length, tasksLastFetched]);
 
   // Show all tasks (filtering will be done by the API later)
   const myTasks = allTasks;

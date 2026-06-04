@@ -24,10 +24,10 @@ function CreateProject() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { items: customers, loading: customersLoading } = useSelector(
+  const { items: customers, loading: customersLoading, lastFetched: customersLastFetched } = useSelector(
     (state) => state.customers,
   );
-  const { items: quotations, loading: quotationsLoading } = useSelector(
+  const { items: quotations, loading: quotationsLoading, lastFetched: quotationsLastFetched } = useSelector(
     (state) => state.quotations,
   );
   const { createLoading } = useSelector((state) => state.projects);
@@ -42,9 +42,17 @@ function CreateProject() {
   });
 
   useEffect(() => {
-    dispatch(fetchCustomers());
-    dispatch(fetchQuotations());
-  }, [dispatch]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isCustomersStale = !customersLastFetched || (Date.now() - customersLastFetched > CACHE_DURATION);
+    const isQuotationsStale = !quotationsLastFetched || (Date.now() - quotationsLastFetched > CACHE_DURATION);
+
+    if (customers.length === 0 || isCustomersStale) {
+      dispatch(fetchCustomers());
+    }
+    if (quotations.length === 0 || isQuotationsStale) {
+      dispatch(fetchQuotations());
+    }
+  }, [dispatch, customers.length, quotations.length, customersLastFetched, quotationsLastFetched]);
 
   const approvedQuotations = quotations.filter(
     (q) => q.status === "Approved" || q.status === "Confirmed",

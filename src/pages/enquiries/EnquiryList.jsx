@@ -66,9 +66,10 @@ function EnquiryList() {
     loading,
     error,
     deleteLoading,
+    lastFetched: enquiriesLastFetched,
   } = useSelector((state) => state.enquiries);
-  const { items: customers } = useSelector((state) => state.customers);
-  const { items: users } = useSelector((state) => state.users);
+  const { items: customers, lastFetched: customersLastFetched } = useSelector((state) => state.customers);
+  const { items: users, lastFetched: usersLastFetched } = useSelector((state) => state.users);
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteTargetId, setDeleteTargetId] = useState(null);
 
@@ -100,11 +101,17 @@ function EnquiryList() {
 
   // Fetch users and customers once on mount
   useEffect(() => {
-    dispatch(fetchUsers());
-    if (customers.length === 0) {
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isUsersStale = !usersLastFetched || (Date.now() - usersLastFetched > CACHE_DURATION);
+    const isCustomersStale = !customersLastFetched || (Date.now() - customersLastFetched > CACHE_DURATION);
+
+    if (users.length === 0 || isUsersStale) {
+      dispatch(fetchUsers());
+    }
+    if (customers.length === 0 || isCustomersStale) {
       dispatch(fetchCustomers());
     }
-  }, [dispatch, customers.length]);
+  }, [dispatch, users.length, customers.length, usersLastFetched, customersLastFetched]);
 
   // Debounce search input
   useEffect(() => {
@@ -119,8 +126,13 @@ function EnquiryList() {
   useEffect(() => {
     const params = {};
     if (searchQuery) params.search = searchQuery;
-    dispatch(fetchEnquiries(params));
-  }, [dispatch, searchQuery]);
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isEnquiriesStale = !enquiriesLastFetched || (Date.now() - enquiriesLastFetched > CACHE_DURATION);
+
+    if (searchQuery || enquiries.length === 0 || isEnquiriesStale) {
+      dispatch(fetchEnquiries(params));
+    }
+  }, [dispatch, searchQuery, enquiries.length, enquiriesLastFetched]);
 
   // Client-side filtering for status
   const filtered = enquiries.filter((item) => {

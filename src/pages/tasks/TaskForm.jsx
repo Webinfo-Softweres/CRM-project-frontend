@@ -37,13 +37,13 @@ function TaskForm() {
   const navigate = useNavigate();
   const isEdit = Boolean(id);
 
-  const { items: projects, loading: projectsLoading } = useSelector(
+  const { items: projects, loading: projectsLoading, lastFetched: projectsLastFetched } = useSelector(
     (state) => state.projects,
   );
-  const { items: departments, loading: departmentsLoading } = useSelector(
+  const { items: departments, loading: departmentsLoading, lastFetched: departmentsLastFetched } = useSelector(
     (state) => state.departments,
   );
-  const { items: users, loading: usersLoading } = useSelector(
+  const { items: users, loading: usersLoading, lastFetched: usersLastFetched } = useSelector(
     (state) => state.users,
   );
   const {
@@ -72,10 +72,21 @@ function TaskForm() {
 
   // Fetch related data and the task by ID if editing
   useEffect(() => {
-    dispatch(fetchProjects());
-    dispatch(fetchDepartments());
-    dispatch(fetchUsers());
-    
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isProjectsStale = !projectsLastFetched || (Date.now() - projectsLastFetched > CACHE_DURATION);
+    const isDepartmentsStale = !departmentsLastFetched || (Date.now() - departmentsLastFetched > CACHE_DURATION);
+    const isUsersStale = !usersLastFetched || (Date.now() - usersLastFetched > CACHE_DURATION);
+
+    if (projects.length === 0 || isProjectsStale) {
+      dispatch(fetchProjects());
+    }
+    if (departments.length === 0 || isDepartmentsStale) {
+      dispatch(fetchDepartments());
+    }
+    if (users.length === 0 || isUsersStale) {
+      dispatch(fetchUsers());
+    }
+
     if (isEdit) {
       dispatch(fetchTaskById(id));
     }
@@ -84,7 +95,7 @@ function TaskForm() {
       dispatch(clearCurrentTask());
       dispatch(clearTaskError());
     };
-  }, [dispatch, id, isEdit]);
+  }, [dispatch, id, isEdit, projects.length, departments.length, users.length, projectsLastFetched, departmentsLastFetched, usersLastFetched]);
 
   // Populate form once task is loaded
   useEffect(() => {

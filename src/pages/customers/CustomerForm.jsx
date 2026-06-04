@@ -35,6 +35,7 @@ function CustomerForm() {
     createError,
     updateLoading,
     updateError,
+    lastFetched: customersLastFetched,
   } = useSelector((state) => state.customers);
 
   const [form, setForm] = useState({
@@ -52,10 +53,12 @@ function CustomerForm() {
   const error = createError || updateError;
 
   useEffect(() => {
-    if (isEdit && customers.length === 0) {
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isCustomersStale = !customersLastFetched || (Date.now() - customersLastFetched > CACHE_DURATION);
+    if (isEdit && (customers.length === 0 || isCustomersStale)) {
       dispatch(fetchCustomers());
     }
-  }, [dispatch, isEdit, customers.length]);
+  }, [dispatch, isEdit, customers.length, customersLastFetched]);
 
   // Load customer data when editing
   useEffect(() => {

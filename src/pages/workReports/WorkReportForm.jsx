@@ -26,9 +26,11 @@ function WorkReportForm() {
   const { id } = useParams();
   const isEdit = !!id;
 
-  const { items: reports, createLoading, updateLoading } = useSelector((state) => state.workReports);
-  const users = useSelector((state) => state.users.items);
-  const usersLoading = useSelector((state) => state.users.loading);
+  const { items: reports, createLoading, updateLoading, lastFetched: reportsLastFetched } = useSelector((state) => state.workReports);
+  const usersData = useSelector((state) => state.users);
+  const users = usersData.items;
+  const usersLoading = usersData.loading;
+  const usersLastFetched = usersData.lastFetched;
   const isLoading = createLoading || updateLoading;
 
   const existingReport = isEdit
@@ -48,13 +50,17 @@ function WorkReportForm() {
   });
 
   useEffect(() => {
-    if (users.length === 0) {
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isUsersStale = !usersLastFetched || (Date.now() - usersLastFetched > CACHE_DURATION);
+    const isReportsStale = !reportsLastFetched || (Date.now() - reportsLastFetched > CACHE_DURATION);
+
+    if (users.length === 0 || isUsersStale) {
       dispatch(fetchUsers());
     }
-    if (isEdit && reports.length === 0) {
+    if (isEdit && (reports.length === 0 || isReportsStale)) {
       dispatch(fetchWorkReports());
     }
-  }, [dispatch, users.length, isEdit, reports.length]);
+  }, [dispatch, users.length, isEdit, reports.length, usersLastFetched, reportsLastFetched]);
 
   // Update default user_id once loggedInUserId becomes available
   useEffect(() => {

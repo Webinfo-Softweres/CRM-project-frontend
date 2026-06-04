@@ -75,6 +75,7 @@ const userSlice = createSlice({
     createError: null,
     updateError: null,
     deleteError: null,
+    lastFetched: null,
   },
   reducers: {
     updateUser: (state, action) => {
@@ -99,6 +100,7 @@ const userSlice = createSlice({
       .addCase(fetchUsers.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
+        state.lastFetched = Date.now();
         // API returns { items: [...], total, page, limit, pages }
         state.items = Array.isArray(action.payload)
           ? action.payload

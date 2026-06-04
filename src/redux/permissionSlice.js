@@ -80,6 +80,7 @@ const permissionSlice = createSlice({
     createError: null,
     updateError: null,
     deleteError: null,
+    lastFetched: null,
   },
   reducers: {
     clearPermissionError: (state) => {
@@ -98,6 +99,7 @@ const permissionSlice = createSlice({
       })
       .addCase(fetchPermissions.fulfilled, (state, action) => {
         state.loading = false;
+        state.lastFetched = Date.now();
         state.items = action.payload;
       })
       .addCase(fetchPermissions.rejected, (state, action) => {

@@ -79,20 +79,32 @@ function TaskDetails() {
 
   const { currentTask: task, currentTaskLoading, currentTaskError } =
     useSelector((state) => state.tasks);
-  const { items: projects } = useSelector((state) => state.projects);
-  const { items: departments } = useSelector((state) => state.departments);
-  const { items: users } = useSelector((state) => state.users);
+  const { items: projects, lastFetched: projectsLastFetched } = useSelector((state) => state.projects);
+  const { items: departments, lastFetched: departmentsLastFetched } = useSelector((state) => state.departments);
+  const { items: users, lastFetched: usersLastFetched } = useSelector((state) => state.users);
 
   useEffect(() => {
+    const CACHE_DURATION = 5 * 60 * 1000;
+    const isProjectsStale = !projectsLastFetched || (Date.now() - projectsLastFetched > CACHE_DURATION);
+    const isDepartmentsStale = !departmentsLastFetched || (Date.now() - departmentsLastFetched > CACHE_DURATION);
+    const isUsersStale = !usersLastFetched || (Date.now() - usersLastFetched > CACHE_DURATION);
+
     dispatch(fetchTaskById(id));
-    dispatch(fetchProjects());
-    dispatch(fetchDepartments());
-    dispatch(fetchUsers());
+
+    if (projects.length === 0 || isProjectsStale) {
+      dispatch(fetchProjects());
+    }
+    if (departments.length === 0 || isDepartmentsStale) {
+      dispatch(fetchDepartments());
+    }
+    if (users.length === 0 || isUsersStale) {
+      dispatch(fetchUsers());
+    }
 
     return () => {
       dispatch(clearCurrentTask());
     };
-  }, [dispatch, id]);
+  }, [dispatch, id, projects.length, departments.length, users.length, projectsLastFetched, departmentsLastFetched, usersLastFetched]);
 
   // ── Loading ────────────────────────────────────────────────────────────────
   if (currentTaskLoading) {
