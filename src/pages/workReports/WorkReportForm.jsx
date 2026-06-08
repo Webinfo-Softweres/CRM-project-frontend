@@ -54,13 +54,14 @@ function WorkReportForm() {
     const isUsersStale = !usersLastFetched || (Date.now() - usersLastFetched > CACHE_DURATION);
     const isReportsStale = !reportsLastFetched || (Date.now() - reportsLastFetched > CACHE_DURATION);
 
-    if (users.length === 0 || isUsersStale) {
+    if (isUsersStale) {
       dispatch(fetchUsers());
     }
-    if (isEdit && (reports.length === 0 || isReportsStale)) {
+    if (isEdit && isReportsStale) {
       dispatch(fetchWorkReports());
     }
-  }, [dispatch, users.length, isEdit, reports.length, usersLastFetched, reportsLastFetched]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, isEdit]);
 
   // Update default user_id once loggedInUserId becomes available
   useEffect(() => {

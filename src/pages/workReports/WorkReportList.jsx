@@ -53,10 +53,11 @@ function WorkReportList() {
   useEffect(() => {
     const CACHE_DURATION = 5 * 60 * 1000;
     const isUsersStale = !usersLastFetched || (Date.now() - usersLastFetched > CACHE_DURATION);
-    if (users.length === 0 || isUsersStale) {
+    if (isUsersStale) {
       dispatch(fetchUsers());
     }
-  }, [dispatch, users.length, usersLastFetched]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]);
 
   // Debounce search input
   useEffect(() => {
@@ -72,12 +73,18 @@ function WorkReportList() {
     const params = {};
     if (searchQuery) params.search = searchQuery;
     if (reportDate) params.report_date = reportDate;
-    const CACHE_DURATION = 5 * 60 * 1000;
-    const isReportsStale = !lastFetched || (Date.now() - lastFetched > CACHE_DURATION);
-    if (reports.length === 0 || isReportsStale || searchQuery || reportDate) {
+    
+    if (!searchQuery && !reportDate) {
+      const CACHE_DURATION = 5 * 60 * 1000;
+      const isReportsStale = !lastFetched || (Date.now() - lastFetched > CACHE_DURATION);
+      if (isReportsStale) {
+        dispatch(fetchWorkReports(params));
+      }
+    } else {
       dispatch(fetchWorkReports(params));
     }
-  }, [dispatch, searchQuery, reportDate, lastFetched, reports.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, searchQuery, reportDate]);
 
   const getUserName = (userId) => {
     const user = users.find((u) => u.id === userId);

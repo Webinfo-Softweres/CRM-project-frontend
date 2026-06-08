@@ -83,16 +83,17 @@ function WorkReportDetails() {
     const isUsersStale = !usersLastFetched || (Date.now() - usersLastFetched > CACHE_DURATION);
     const isDepartmentsStale = !departmentsLastFetched || (Date.now() - departmentsLastFetched > CACHE_DURATION);
 
-    if (reports.length === 0 || isReportsStale) {
+    if (isReportsStale) {
       dispatch(fetchWorkReports());
     }
-    if (users.length === 0 || isUsersStale) {
+    if (isUsersStale) {
       dispatch(fetchUsers());
     }
-    if (departments.length === 0 || isDepartmentsStale) {
+    if (isDepartmentsStale) {
       dispatch(fetchDepartments());
     }
-  }, [dispatch, reports.length, users.length, departments.length, reportsLastFetched, usersLastFetched, departmentsLastFetched]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch]);
 
   const report = reports.find((r) => String(r.id) === String(id));
   const isLoading = currentReportLoading || usersLoading || departmentsLoading;

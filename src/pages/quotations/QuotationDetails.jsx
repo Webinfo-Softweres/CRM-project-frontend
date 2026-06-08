@@ -18,6 +18,7 @@ import {
   ClipboardList,
   Pencil,
   AlertTriangle,
+  Download,
 } from "lucide-react";
 
 import { fetchQuotations } from "../../redux/quotationSlice";
@@ -29,6 +30,7 @@ import { fetchRoles } from "../../redux/roleSlice";
 
 import { usePermissions } from "../../hooks/usePermissions";
 import { getStaffNameFromState } from "../../utils/projectHelpers";
+import { generateQuotationPDF } from "../../utils/pdfGenerator";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const formatDate = (dateString) => {
@@ -75,18 +77,18 @@ function DetailGroup({ title, icon: Icon, iconClass, children }) {
   );
 }
 
-// ── QuotationDetails Page ────────────────────────────────────────────────────
+// ── QuotationDetails Page ─────────────────────────────────────────────────────
 function QuotationDetails() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { can } = usePermissions();
 
-  const { items: quotations, loading: quotationsLoading } = useSelector((state) => state.quotations);
-  const { items: enquiries, loading: enquiriesLoading } = useSelector((state) => state.enquiries);
-  const { items: customers, loading: customersLoading } = useSelector((state) => state.customers);
-  const { items: users, loading: usersLoading } = useSelector((state) => state.users);
-  const { items: departments, loading: departmentsLoading } = useSelector((state) => state.departments);
-  const { items: roles, loading: rolesLoading } = useSelector((state) => state.roles);
+  const { items: quotations, loading: quotationsLoading } = useSelector((s) => s.quotations);
+  const { items: enquiries, loading: enquiriesLoading } = useSelector((s) => s.enquiries);
+  const { items: customers, loading: customersLoading } = useSelector((s) => s.customers);
+  const { items: users, loading: usersLoading } = useSelector((s) => s.users);
+  const { items: departments, loading: departmentsLoading } = useSelector((s) => s.departments);
+  const { items: roles, loading: rolesLoading } = useSelector((s) => s.roles);
 
   useEffect(() => {
     if (quotations.length === 0) dispatch(fetchQuotations());
@@ -98,12 +100,8 @@ function QuotationDetails() {
   }, [dispatch, quotations.length, enquiries.length, customers.length, users.length, departments.length, roles.length]);
 
   const isLoading =
-    quotationsLoading ||
-    enquiriesLoading ||
-    customersLoading ||
-    usersLoading ||
-    departmentsLoading ||
-    rolesLoading;
+    quotationsLoading || enquiriesLoading || customersLoading ||
+    usersLoading || departmentsLoading || rolesLoading;
 
   const quote = quotations.find((q) => String(q.id) === String(id));
 
@@ -119,7 +117,7 @@ function QuotationDetails() {
     );
   }
 
-  // ── Error / Not found ──────────────────────────────────────────────────────
+  // ── Not found ──────────────────────────────────────────────────────────────
   if (!isLoading && !quote) {
     return (
       <AdminLayout>
@@ -128,13 +126,8 @@ function QuotationDetails() {
             <AlertTriangle size={28} className="text-red-500" />
           </div>
           <h2 className="text-2xl font-bold text-slate-800">Quotation not found</h2>
-          <p className="text-gray-500 mt-2">
-            The quotation you are looking for does not exist.
-          </p>
-          <Link
-            to="/quotations"
-            className="mt-6 bg-blue-600 text-white px-6 py-3 rounded-2xl font-medium"
-          >
+          <p className="text-gray-500 mt-2">The quotation you are looking for does not exist.</p>
+          <Link to="/quotations" className="mt-6 bg-blue-600 text-white px-6 py-3 rounded-2xl font-medium">
             Back to Quotations
           </Link>
         </div>
@@ -142,22 +135,25 @@ function QuotationDetails() {
     );
   }
 
-  // ── Resolved relationships ─────────────────────────────────────────────────
+  // ── Resolved relationships — MUST come before handleDownloadQuotation ──────
   const enquiry = enquiries.find((e) => String(e.id) === String(quote.enquiry_id));
   const customer = enquiry ? customers.find((c) => String(c.id) === String(enquiry.customer_id)) : null;
 
+  // ── Download handler — defined AFTER enquiry & customer are resolved ───────
+  const handleDownloadQuotation = async () => {
+    await generateQuotationPDF({ quote, customer, enquiry });
+  };
+
   const creatorName = getStaffNameFromState(quote.created_by, users);
   const approverName = getStaffNameFromState(quote.approved_by, users);
-  
-  const formattedAmount = quote
-    ? `₹${Number(quote.amount).toLocaleString("en-IN")}`
-    : "—";
+
+  const formattedAmount = `₹${Number(quote.amount).toLocaleString("en-IN")}`;
 
   const timeline = [
     {
       date: "Created",
       title: "Quotation generated",
-      description: formatDate(quote.created_at) + " at " + formatTime(quote.created_at),
+      description: `${formatDate(quote.created_at)} at ${formatTime(quote.created_at)}`,
       color: "bg-blue-600",
     },
     {
@@ -165,14 +161,11 @@ function QuotationDetails() {
       title: "Current status",
       description: quote.status || "Draft",
       color:
-        quote.status === "Approved"
-          ? "bg-green-500"
-          : quote.status === "Confirmed"
-          ? "bg-blue-500"
-          : quote.status === "Rejected"
-          ? "bg-red-500"
-          : "bg-orange-500",
-    }
+        quote.status === "Approved" ? "bg-green-500" :
+          quote.status === "Confirmed" ? "bg-blue-500" :
+            quote.status === "Rejected" ? "bg-red-500" :
+              "bg-orange-500",
+    },
   ];
 
   return (
@@ -192,17 +185,14 @@ function QuotationDetails() {
               >
                 <ArrowLeft size={20} />
               </Link>
-
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm text-gray-400">Quotation #{quote.id}</span>
                   <StatusBadge status={quote.status} />
                 </div>
-
                 <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mt-1">
                   Quotation Details
                 </h1>
-                
                 {customer && (
                   <p className="text-gray-500 mt-1 text-sm">
                     For {customer.name} · {customer.company_name}
@@ -211,31 +201,36 @@ function QuotationDetails() {
               </div>
             </div>
 
-            {can("quotations:update") && (
-              <Link
-                to={`/quotations/edit/${quote.id}`}
-                className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl text-sm font-medium transition-all"
-              >
-                <Pencil size={16} />
-                Edit Quotation
-              </Link>
-            )}
+            <div className="flex items-center gap-2">
+              {can("quotations:read") && (
+                <button
+                  onClick={handleDownloadQuotation}
+                  className="inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-2xl text-sm font-medium transition-all"
+                >
+                  <Download size={16} />
+                  Download
+                </button>
+              )}
+              {can("quotations:update") && (
+                <Link
+                  to={`/quotations/edit/${quote.id}`}
+                  className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-2xl text-sm font-medium transition-all"
+                >
+                  <Pencil size={16} />
+                  Edit Quotation
+                </Link>
+              )}
+            </div>
           </div>
         </motion.div>
 
         {/* ── Body ── */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* Left — detail groups */}
+          {/* Left */}
           <div className="xl:col-span-2 space-y-5">
-            <DetailGroup
-              title="Quotation Information"
-              icon={FileText}
-              iconClass="bg-purple-100 text-purple-600"
-            >
+            <DetailGroup title="Quotation Information" icon={FileText} iconClass="bg-purple-100 text-purple-600">
               <InfoRow label="Description" value={quote.description || "—"} />
-              {can("quotations:read") && (
-                <InfoRow label="Amount" value={formattedAmount} />
-              )}
+              {can("quotations:read") && <InfoRow label="Amount" value={formattedAmount} />}
               <InfoRow label="Status" value={<StatusBadge status={quote.status} />} />
               <InfoRow label="Created By" value={creatorName} />
               <InfoRow label="Approved By" value={approverName} />
@@ -243,11 +238,7 @@ function QuotationDetails() {
             </DetailGroup>
 
             {customer && (
-              <DetailGroup
-                title="Customer"
-                icon={User}
-                iconClass="bg-green-100 text-green-600"
-              >
+              <DetailGroup title="Customer" icon={User} iconClass="bg-green-100 text-green-600">
                 <InfoRow label="Customer Name" value={customer.name} />
                 <InfoRow label="Business Name" value={customer.company_name} />
                 <InfoRow label="Phone" value={customer.phone} />
@@ -256,11 +247,7 @@ function QuotationDetails() {
             )}
 
             {enquiry && (
-              <DetailGroup
-                title="Related Enquiry"
-                icon={ClipboardList}
-                iconClass="bg-orange-100 text-orange-600"
-              >
+              <DetailGroup title="Related Enquiry" icon={ClipboardList} iconClass="bg-orange-100 text-orange-600">
                 <InfoRow label="Enquiry ID" value={`#${enquiry.id}`} />
                 <InfoRow label="Source" value={enquiry.source} />
                 <InfoRow label="Service Type" value={enquiry.service_required} />
@@ -269,7 +256,7 @@ function QuotationDetails() {
             )}
           </div>
 
-          {/* Right — timeline sidebar */}
+          {/* Right — timeline */}
           <div className="xl:col-span-1">
             <AnimatedCard className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sticky top-6">
               <div className="flex items-center gap-3 mb-6">
@@ -278,38 +265,24 @@ function QuotationDetails() {
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-slate-800">Timeline</h2>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Activity history
-                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">Activity history</p>
                 </div>
               </div>
 
               <div className="relative">
                 <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-gray-200" />
-
                 <ul className="space-y-6">
                   {timeline.map((event, index) => (
-                    <li
-                      key={`${event.title}-${index}`}
-                      className="relative pl-8"
-                    >
-                      <span
-                        className={`absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full ring-4 ring-white ${event.color}`}
-                      />
-                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                        {event.date}
-                      </p>
-                      <p className="font-semibold text-slate-800 mt-1">
-                        {event.title}
-                      </p>
-                      <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">
-                        {event.description}
-                      </p>
+                    <li key={`${event.title}-${index}`} className="relative pl-8">
+                      <span className={`absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full ring-4 ring-white ${event.color}`} />
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{event.date}</p>
+                      <p className="font-semibold text-slate-800 mt-1">{event.title}</p>
+                      <p className="text-sm text-gray-500 mt-0.5 leading-relaxed">{event.description}</p>
                     </li>
                   ))}
                 </ul>
               </div>
-              
+
               {can("quotations:read") && (
                 <div className="mt-8 pt-6 border-t border-gray-100">
                   <div className="bg-indigo-50 rounded-2xl p-4 flex items-center justify-between">
