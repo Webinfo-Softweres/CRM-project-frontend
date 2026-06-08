@@ -52,10 +52,10 @@ const formatTime = (dateString) => {
 };
 
 // ── Sub-components ────────────────────────────────────────────────────────────
-function InfoRow({ label, value }) {
+function InfoRow({ label, value, fullWidth }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4 py-3.5 border-b border-gray-100 last:border-0">
-      <dt className="text-sm text-gray-500 sm:w-44 shrink-0">{label}</dt>
+    <div className={`flex flex-col ${fullWidth ? '' : 'sm:flex-row sm:items-start'} gap-1 ${fullWidth ? '' : 'sm:gap-4'} py-3.5 border-b border-gray-100 last:border-0`}>
+      <dt className={`text-sm text-gray-500 ${fullWidth ? '' : 'sm:w-44 shrink-0'}`}>{label}</dt>
       <dd className="text-sm font-semibold text-slate-800 flex-1 whitespace-pre-wrap">
         {value ?? "—"}
       </dd>
@@ -229,7 +229,7 @@ function QuotationDetails() {
           {/* Left */}
           <div className="xl:col-span-2 space-y-5">
             <DetailGroup title="Quotation Information" icon={FileText} iconClass="bg-purple-100 text-purple-600">
-              <InfoRow label="Description" value={quote.description || "—"} />
+              <InfoRow label="Description" value={quote.description || "—"} fullWidth={true} />
               {can("quotations:read") && <InfoRow label="Amount" value={formattedAmount} />}
               <InfoRow label="Status" value={<StatusBadge status={quote.status} />} />
               <InfoRow label="Created By" value={creatorName} />
@@ -251,7 +251,7 @@ function QuotationDetails() {
                 <InfoRow label="Enquiry ID" value={`#${enquiry.id}`} />
                 <InfoRow label="Source" value={enquiry.source} />
                 <InfoRow label="Service Type" value={enquiry.service_required} />
-                <InfoRow label="Requirement" value={enquiry.description} />
+                <InfoRow label="Requirement" value={enquiry.description} fullWidth={true} />
               </DetailGroup>
             )}
           </div>
