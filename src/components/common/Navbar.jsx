@@ -369,10 +369,10 @@ function Navbar({ setSidebarOpen }) {
               {/* User info - hidden on mobile */}
               <div className="hidden md:block text-left">
                 <h3 className="text-sm font-semibold text-slate-700">
-                  {loggedInUser ? loggedInUser.name : "Admin User"}
+                  {loggedInUser?.name || ""}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  {loggedInUser ? getRoleName(loggedInUser.role_id) : "Administrator"}
+                  {loggedInUser ? getRoleName(loggedInUser.role_id) : ""}
                 </p>
               </div>
 
@@ -405,7 +405,7 @@ function Navbar({ setSidebarOpen }) {
                   <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-slate-50 to-white">
                     <p className="text-xs text-gray-500 font-medium">Signed in as</p>
                     <p className="text-sm font-semibold text-slate-800 truncate">
-                      {loggedInUser?.email || "admin@example.com"}
+                      {loggedInUser?.email || ""}
                     </p>
                   </div>
 
