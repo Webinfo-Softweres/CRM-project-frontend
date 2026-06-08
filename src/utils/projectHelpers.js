@@ -175,15 +175,17 @@ export function buildProjectTimeline(context, options = {}) {
     const creatorLine = formatStaffLine(createdBy);
     const approverLine = formatStaffLine(approvedBy);
     
-    let description = canReadQuotations
-      ? `₹${Number(quotation.amount).toLocaleString("en-IN")} — ${quotation.description}`
-      : `${quotation.description}`;
+    const parts = [];
+    if (canReadQuotations) {
+      parts.push(`₹${Number(quotation.amount).toLocaleString("en-IN")}`);
+    }
     if (creatorLine) {
-      description += `. Created by ${creatorLine}`;
+      parts.push(`Created by ${creatorLine}`);
     }
     if (approverLine) {
-      description += `. Approved by ${approverLine}`;
+      parts.push(`Approved by ${approverLine}`);
     }
+    const description = parts.join(". ");
 
     events.push({
       date: quotation.created_at,

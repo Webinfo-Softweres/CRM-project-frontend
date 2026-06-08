@@ -35,12 +35,20 @@ import AnimatedPage from "../../components/animations/AnimatedPage";
 import AnimatedCard from "../../components/animations/AnimatedCard";
 
 import { Link, useParams } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
-function InfoRow({ label, value }) {
+function InfoRow({ label, value, isMarkdown }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4 py-3.5 border-b border-gray-100 last:border-0">
-      <dt className="text-sm text-gray-500 sm:w-44 shrink-0">{label}</dt>
-      <dd className="text-sm font-semibold text-slate-800 flex-1">{value ?? "—"}</dd>
+      <dt className="text-sm text-gray-500 sm:w-44 shrink-0 mt-0.5">{label}</dt>
+      <dd className={`text-sm text-slate-800 flex-1 ${isMarkdown ? 'prose prose-sm max-w-none font-normal prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-li:my-0 prose-slate' : 'font-semibold'}`}>
+        {isMarkdown && value ? (
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown>
+        ) : (
+          value ?? "—"
+        )}
+      </dd>
     </div>
   );
 }
@@ -264,7 +272,7 @@ function ProjectDetails() {
               >
                 <InfoRow label="Source" value={enquiry.source} />
                 <InfoRow label="Service Type" value={enquiry.service_required} />
-                <InfoRow label="Requirement Detail" value={enquiry.description} />
+                <InfoRow label="Requirement Detail" value={enquiry.description} isMarkdown={true} />
                 <InfoRow
                   label="Assigned To"
                   value={
