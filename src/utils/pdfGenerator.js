@@ -118,7 +118,23 @@ export const generateQuotationPDF = async ({ quote, customer, enquiry }) => {
   `);
 
   // ── 2. FOOTER HTML ─────────────────────────────────────────────────────────
-  const footerWrap = mount(`
+  const regularFooterWrap = mount(`
+    <div style="
+      font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+      width:794px;
+      padding:14px 40px 16px 40px;
+      color:#0f172a;
+      background:#fff;
+      box-sizing:border-box;
+      border-top:1px solid #cbd5e1;
+    ">
+      <div style="text-align:center;">
+        <p style="font-size:10px;color:#3b82f6;margin:0;font-weight:500;">www.zyveratech.com</p>
+      </div>
+    </div>
+  `);
+
+  const lastPageFooterWrap = mount(`
     <div style="
       font-family:'Inter','Helvetica Neue',Arial,sans-serif;
       width:794px;
@@ -149,10 +165,12 @@ export const generateQuotationPDF = async ({ quote, customer, enquiry }) => {
   // ── 3. Capture canvases ────────────────────────────────────────────────────
   const SCALE = 2;
   const bodyCanvas   = await html2canvas(bodyWrap.firstElementChild,   { scale:SCALE, useCORS:true, backgroundColor:"#fff" });
-  const footerCanvas = await html2canvas(footerWrap.firstElementChild, { scale:SCALE, useCORS:true, backgroundColor:"#fff" });
+  const regularFooterCanvas = await html2canvas(regularFooterWrap.firstElementChild, { scale:SCALE, useCORS:true, backgroundColor:"#fff" });
+  const lastPageFooterCanvas = await html2canvas(lastPageFooterWrap.firstElementChild, { scale:SCALE, useCORS:true, backgroundColor:"#fff" });
 
   document.body.removeChild(bodyWrap);
-  document.body.removeChild(footerWrap);
+  document.body.removeChild(regularFooterWrap);
+  document.body.removeChild(lastPageFooterWrap);
 
   // ── 4. Build PDF ───────────────────────────────────────────────────────────
   const A4_W_PT   = 595.28;
@@ -164,44 +182,71 @@ export const generateQuotationPDF = async ({ quote, customer, enquiry }) => {
   const pxPerPt = (bodyCanvas.width / SCALE) / usableW;
 
   const bodyH_pt   = (bodyCanvas.height   / SCALE) / pxPerPt;
-  const footerH_pt = (footerCanvas.height / SCALE) / pxPerPt;
+  const regularFooterH_pt = (regularFooterCanvas.height / SCALE) / pxPerPt;
+  const lastPageFooterH_pt = (lastPageFooterCanvas.height / SCALE) / pxPerPt;
 
-  // Available height for body content per page (leave room for footer + margins)
-  const slotH_pt = A4_H_PT - MARGIN_PT * 2 - footerH_pt - 6; // 6pt gap above footer
-
-  const footerImg = footerCanvas.toDataURL("image/jpeg", 0.98);
+  const regularFooterImg = regularFooterCanvas.toDataURL("image/jpeg", 0.98);
+  const lastPageFooterImg = lastPageFooterCanvas.toDataURL("image/jpeg", 0.98);
 
   const pdf = new jsPDF({ unit:"pt", format:"a4", orientation:"portrait" });
 
   let remaining = bodyH_pt;
   let srcY_pt   = 0;
   let page      = 0;
+  let lastPageFooterPrinted = false;
 
-  while (remaining > 0) {
+  while (remaining > 0 || !lastPageFooterPrinted) {
     if (page > 0) pdf.addPage();
 
+    const availableWithLast = A4_H_PT - MARGIN_PT * 2 - lastPageFooterH_pt - 6;
+    const availableWithRegular = A4_H_PT - MARGIN_PT * 2 - regularFooterH_pt - 6;
+
+    let isLastPage = false;
+    let slotH_pt;
+    let currentFooterImg;
+    let currentFooterH_pt;
+
+    if (remaining <= availableWithLast) {
+      isLastPage = true;
+      slotH_pt = remaining; // consume whatever is left
+      currentFooterImg = lastPageFooterImg;
+      currentFooterH_pt = lastPageFooterH_pt;
+    } else {
+      isLastPage = false;
+      slotH_pt = availableWithRegular;
+      currentFooterImg = regularFooterImg;
+      currentFooterH_pt = regularFooterH_pt;
+    }
+
     const sliceH_pt = Math.min(remaining, slotH_pt);
-    const sliceH_px = Math.round(sliceH_pt * pxPerPt * SCALE);
-    const srcY_px   = Math.round(srcY_pt   * pxPerPt * SCALE);
+    
+    if (sliceH_pt > 0) {
+      const sliceH_px = Math.round(sliceH_pt * pxPerPt * SCALE);
+      const srcY_px   = Math.round(srcY_pt   * pxPerPt * SCALE);
 
-    // Crop body canvas to this page's slice
-    const slice = document.createElement("canvas");
-    slice.width  = bodyCanvas.width;
-    slice.height = sliceH_px;
-    slice.getContext("2d").drawImage(
-      bodyCanvas,
-      0, srcY_px, bodyCanvas.width, sliceH_px,  // source rect
-      0, 0,       bodyCanvas.width, sliceH_px   // dest rect
-    );
+      // Crop body canvas to this page's slice
+      const slice = document.createElement("canvas");
+      slice.width  = bodyCanvas.width;
+      slice.height = sliceH_px;
+      slice.getContext("2d").drawImage(
+        bodyCanvas,
+        0, srcY_px, bodyCanvas.width, sliceH_px,  // source rect
+        0, 0,       bodyCanvas.width, sliceH_px   // dest rect
+      );
 
-    pdf.addImage(slice.toDataURL("image/jpeg", 0.98), "JPEG", MARGIN_PT, MARGIN_PT, usableW, sliceH_pt);
+      pdf.addImage(slice.toDataURL("image/jpeg", 0.98), "JPEG", MARGIN_PT, MARGIN_PT, usableW, sliceH_pt);
+    }
 
     // Footer always pinned to the very bottom of each page
-    pdf.addImage(footerImg, "JPEG", MARGIN_PT, A4_H_PT - MARGIN_PT - footerH_pt, usableW, footerH_pt);
+    pdf.addImage(currentFooterImg, "JPEG", MARGIN_PT, A4_H_PT - MARGIN_PT - currentFooterH_pt, usableW, currentFooterH_pt);
 
     srcY_pt   += sliceH_pt;
     remaining -= sliceH_pt;
     page++;
+
+    if (isLastPage) {
+      lastPageFooterPrinted = true;
+    }
   }
 
   pdf.save(`Quotation_${quote.id}_${customer?.name?.replace(/\s+/g,"_") || "Customer"}.pdf`);
